@@ -1,0 +1,294 @@
+<canvas id="canvas"></canvas>
+<style>
+body {
+    margin: 0;
+    background-color: black;
+}
+canvas {
+    width: 512px;
+    height: 512px;
+    display: block;
+}
+</style>
+
+<!-- vertex shader -->
+<script  id="vertex-shader-2d" type="x-shader/x-vertex">
+    attribute vec2 a_position;
+    attribute vec2 a_texCoord;
+
+    uniform vec2 u_resolution;
+
+    varying vec2 v_texCoord;
+
+    void main() {
+    // convert the rectangle from pixels to 0.0 to 1.0
+    vec2 zeroToOne = a_position / u_resolution;
+
+    // convert from 0->1 to 0->2
+    vec2 zeroToTwo = zeroToOne * 2.0;
+
+    // convert from 0->2 to -1->+1 (clipspace)
+    vec2 clipSpace = zeroToTwo - 1.0;
+
+    gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+
+    // pass the texCoord to the fragment shader
+    // The GPU will interpolate this value between points.
+    v_texCoord = a_texCoord;
+    }
+</script>
+<!-- fragment shader -->
+<script  id="fragment-shader-2d" type="x-shader/x-fragment">
+    precision mediump float;
+ 
+    // our texture
+    uniform sampler2D u_image;
+    uniform vec2 u_textureSize;
+    uniform float u_kernel[9];
+    uniform float u_kernelWeight;
+     
+    // the texCoords passed in from the vertex shader.
+    varying vec2 v_texCoord;
+     
+    void main() {
+       vec2 onePixel = vec2(1.0, 1.0) / u_textureSize;
+       vec4 colorSum = 
+         texture2D(u_image, v_texCoord + onePixel * vec2(-1, -1)) * u_kernel[0] +
+         texture2D(u_image, v_texCoord + onePixel * vec2( 0, -1)) * u_kernel[1] +
+         texture2D(u_image, v_texCoord + onePixel * vec2( 1, -1)) * u_kernel[2] +
+         texture2D(u_image, v_texCoord + onePixel * vec2(-1,  0)) * u_kernel[3] +
+         texture2D(u_image, v_texCoord + onePixel * vec2( 0,  0)) * u_kernel[4] +
+         texture2D(u_image, v_texCoord + onePixel * vec2( 1,  0)) * u_kernel[5] +
+         texture2D(u_image, v_texCoord + onePixel * vec2(-1,  1)) * u_kernel[6] +
+         texture2D(u_image, v_texCoord + onePixel * vec2( 0,  1)) * u_kernel[7] +
+         texture2D(u_image, v_texCoord + onePixel * vec2( 1,  1)) * u_kernel[8] ;
+        // Divide the sum by the weight but just use rgb
+        // we'll set alpha to 1.0
+        gl_FragColor = vec4((colorSum / u_kernelWeight).rgb, 1.0);
+        //gl_FragColor = colorSum;
+        //ivec2 iTexCoord = ivec2(v_texCoord) * ivec2(u_textureSize);
+        //float tex = texelFetch(u_image, iTexCoord);
+        //gl_FragColor = vec4(
+        //    tex,
+        //    tex,
+        //    tex,1.0);
+    }
+</script>
+
+
+<script>
+// Todo: 
+// remove utils, include correct version of webgl
+// remove image code -> start from randomized image
+// separate render / loop logic
+// setup version control
+// figure out fetchtexel or 2 shader system
+// filing system? webpack? use npm
+
+function main() {
+
+    let sim = new Simulation()
+
+    const renderloop = (now) => {
+        sim.render()
+        requestAnimationFrame(renderloop);
+    }
+    requestAnimationFrame(renderloop);
+}
+
+class Simulation {
+    constructor() {
+        this.canvas = document.querySelector("#canvas");
+        this.gl = canvas.getContext("webgl");
+        if (!this.gl) {
+            console.error("web gl not enabled")
+            return;
+        }
+        let gl = this.gl;
+
+        // setup GLSL program
+        let vsSource = document.getElementById('vertex-shader-2d').text;
+        let fsSource = document.getElementById('fragment-shader-2d').text;
+        this.program = initShaderProgram(gl, vsSource, fsSource);
+
+        // look up where the vertex data needs to go.
+        this.positionLocation = gl.getAttribLocation(this.program, "a_position");
+        this.texcoordLocation = gl.getAttribLocation(this.program, "a_texCoord");
+
+        // Create a buffer to put three 2d clip space points in
+        this.positionBuffer = gl.createBuffer();
+
+        // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+        // Set a rectangle the same size as the image.
+        setRectangle(gl, 0, 0, gl.canvas.width, gl.canvas.height);
+
+        // provide texture coordinates for the rectangle.
+        this.texcoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+            0.0,  0.0,
+            1.0,  0.0,
+            0.0,  1.0,
+            0.0,  1.0,
+            1.0,  0.0,
+            1.0,  1.0,
+        ]), gl.STATIC_DRAW);
+
+        // Create a texture.
+        this.texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+        // Set the parameters so we can render any size image.
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+        const data = new Uint8Array(4 * gl.canvas.width * gl.canvas.height);
+        for (let i = data.length - 1; i >= 0; --i) {
+            data[i] = Math.floor(256 * Math.random());
+        }
+        // Upload the image into the texture.
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.canvas.width, gl.canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+        this.kernelLocation = gl.getUniformLocation(this.program, "u_kernel[0]");
+        this.kernelWeightLocation = gl.getUniformLocation(this.program, "u_kernelWeight");
+        this.kernel = [
+            -1, -1, -1,
+            -1, 8, -1,
+            -1, -1, -1
+        ];
+        this.textureSizeLocation = gl.getUniformLocation(this.program, "u_textureSize");
+        // lookup uniforms
+        this.resolutionLocation = gl.getUniformLocation(this.program, "u_resolution");
+
+        // webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+
+        // Tell WebGL how to convert from clip space to pixels
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    }
+
+    render() {
+        // Clear the canvas
+        let gl = this.gl;
+        let program = this.program;
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        // Tell it to use our program (pair of shaders)
+        gl.useProgram(program);
+
+        // Turn on the position attribute
+        gl.enableVertexAttribArray(this.positionLocation);
+
+        // Bind the position buffer.
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+
+        // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+        var size = 2;          // 2 components per iteration
+        var type = gl.FLOAT;   // the data is 32bit floats
+        var normalize = false; // don't normalize the data
+        var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+        var offset = 0;        // start at the beginning of the buffer
+        gl.vertexAttribPointer(
+            this.positionLocation, size, type, normalize, stride, offset);
+
+        // Turn on the texcoord attribute
+        gl.enableVertexAttribArray(this.texcoordLocation);
+
+        // bind the texcoord buffer.
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordBuffer);
+
+        // Tell the texcoord attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
+        var size = 2;          // 2 components per iteration
+        var type = gl.FLOAT;   // the data is 32bit floats
+        var normalize = false; // don't normalize the data
+        var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+        var offset = 0;        // start at the beginning of the buffer
+        gl.vertexAttribPointer(this.texcoordLocation, size, type, normalize, stride, offset);
+
+        // set the resolution
+        gl.uniform2f(this.resolutionLocation, gl.canvas.width, gl.canvas.height);
+        gl.uniform2f(this.textureSizeLocation, gl.canvas.width, gl.canvas.height);
+        gl.uniform1fv(this.kernelLocation, this.kernel);
+        gl.uniform1f(this.kernelWeightLocation, computeKernelWeight(this.kernel));
+        // Draw the rectangle.
+        var primitiveType = gl.TRIANGLES;
+        var offset = 0;
+        var count = 6;
+        gl.drawArrays(primitiveType, offset, count);
+    }
+}
+
+
+
+function computeKernelWeight(kernel) {
+    var weight = kernel.reduce(function(prev, curr) {
+        return prev + curr;
+    });
+    return weight <= 0 ? 1 : weight;
+}
+
+// creates a shader of the given type, uploads the source and
+// compiles it.
+function loadShader(gl, type, source) {
+  const shader = gl.createShader(type);
+
+  // Send the source to the shader object
+
+  gl.shaderSource(shader, source);
+
+  // Compile the shader program
+
+  gl.compileShader(shader);
+
+  // See if it compiled successfully
+
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+    gl.deleteShader(shader);
+    return null;
+  }
+
+  return shader;
+}
+
+function initShaderProgram(gl, vsSource, fsSource) {
+  const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+  const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+  // Create the shader program
+
+  const shaderProgram = gl.createProgram();
+  gl.attachShader(shaderProgram, vertexShader);
+  gl.attachShader(shaderProgram, fragmentShader);
+  gl.linkProgram(shaderProgram);
+
+  // If creating the shader program failed, alert
+
+  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+    alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+    return null;
+  }
+
+  return shaderProgram;
+}
+
+function setRectangle(gl, x, y, width, height) {
+  var x1 = x;
+  var x2 = x + width;
+  var y1 = y;
+  var y2 = y + height;
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+     x1, y1,
+     x2, y1,
+     x1, y2,
+     x1, y2,
+     x2, y1,
+     x2, y2,
+  ]), gl.STATIC_DRAW);
+}
+
+main();
+
+</script>
