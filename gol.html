@@ -1,6 +1,6 @@
 
 <div id="canvasContainer">
-    <canvas id="renderCanvas" width="512" height="512"></canvas>
+    <canvas id="renderCanvas" width="1024" height="1024"></canvas>
 </div>
 
 <style>
@@ -22,11 +22,14 @@ body{
 
 #canvasContainer{
 	position: absolute;
+	/* height: 100%; */
+
 }
 
 #renderCanvas{
-	height: 1024px;
-	width: 2048px;
+	/* height: 1024px;
+	width: 2048px; */
+	height: 100%;
 
 	background-color: #000000;
 
@@ -53,7 +56,10 @@ body{
 
     uniform bool doStep;
 
-    uniform float u_kernel[9];
+	uniform vec4 colorMask;
+
+	uniform float u_kernel[9];
+
 
     vec2 getCoords(vec2 coord, vec2 offset){
         //return vec2(mod(coord.x + onePixel.x * offset.x, 1.0), mod(coord.y + onePixel.y * offset.y, 1.0));
@@ -67,13 +73,13 @@ body{
 		//return abs(x);
         //return max(x,0.); // relu
         //return 1.0/(4.0*abs(x-3.18)+1.0); // inverse
-		
+		//return abs(x);
 		// game of life
 		//if (x == 3. || x == 11. || x == 12.){
 		//	return 1.0;
 		//}
 		//return 0.;
-		
+		//return sin(x);
 		// rule 30;
 		//if (x == 1. || x == 2. || x == 3.|| x == 4.){
 		//	return 1.0;
@@ -119,11 +125,12 @@ body{
             float x = activation(sum);
 
 			//x += texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).r; // cumulative display
-            gl_FragColor = vec4(x, 0.0, x, 1.0);
+            gl_FragColor = vec4(x, x, x, x);
 
         } else {
-
-            gl_FragColor = texture2D(u_image, texCoord).rgba;
+			// 250, 158, 255
+			// color masking
+			gl_FragColor = texture2D(u_image, texCoord).rgba * colorMask;
             
         }
     }
@@ -152,99 +159,38 @@ body{
 // Display - color, culumative, wrap
 
 
-const fragmentShader = document.getElementById('fragment-shader-2d').text;
-const vertexShader = document.getElementById('vertex-shader-2d').text;
-const webglife = new Webglife();
-
-function Webglife(){
-
-	var canvasContainer = document.getElementById("canvasContainer");
-	var canvas = document.getElementById("renderCanvas");
-
-	function scale(){
-
-		canvas.width = ~~(canvasContainer.clientWidth);
-		canvas.height = ~~(canvasContainer.clientHeight);
-		
+class Renderer {
+	constructor(canvas) {
+		this.gl = canvas.getContext("webgl");
+		this.height = canvas.height;
+		this.width = canvas.width;
 	}
 
-	window.onresize = scale;
-
-	scale();
-
-	var width = canvas.width;
-	var height = canvas.height;
-
-	var cells = new Uint8Array(height * width * 4);
-
-	for(var i = 0; i < cells.length; i++){
-		//cells[i] = 0;
-        cells[i] = Math.floor(255 * Math.random()) // continuous
-        //cells[i] = 255 * Math.floor(Math.random()*2.); // discrete
-
-	}
-
-    cells[height * width * 2 + width*2] = 255;
-
-	var renderer = new Renderer('renderCanvas', cells);
-	renderer.render();
-	
-}
-
-function Renderer(canvasId, world){
-
-	var canvas = document.getElementById(canvasId);
-	var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-
-	var shaderProgram;
-	var size;
-
-	var onePixelAttr;
-	var doStepAttr;
-
-	var fba;
-	var fbb;
-	var txa;
-	var txb;
-
-    let kernelLocation;
-    let kernel;
-
-	var worldTexture;
-
-	var lastHeight = canvas.height;
-	var lastWidth = canvas.width;
-
-	var superfast = window.location.search == "?superfast=true";
-
-	init();
-
-	function init(){
-
-		/*=========================Shaders========================*/
-
+	compileShaders(vertexShaderProgram, fragShaderProgram) {
+		let gl = this.gl;
 
 		// Create a vertex shader object
-		var vertShader = gl.createShader(gl.VERTEX_SHADER);
+		let vertShader = gl.createShader(gl.VERTEX_SHADER);
 
 		// Attach vertex shader source code
-		gl.shaderSource(vertShader, vertexShader);
+		gl.shaderSource(vertShader, vertexShaderProgram);
 
 		// Compile the vertex shader
 		gl.compileShader(vertShader);
 
 		// Create fragment shader object
-		var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+		let fragShader = gl.createShader(gl.FRAGMENT_SHADER);
 
 		// Attach fragment shader source code
-		gl.shaderSource(fragShader, fragmentShader);
+		gl.shaderSource(fragShader, fragShaderProgram);
 
 		// Compile the fragmentt shader
 		gl.compileShader(fragShader);
 
 		// Create a shader program object to store
 		// the combined shader program
-		shaderProgram = gl.createProgram();
+		let shaderProgram = gl.createProgram();
+		this.shader = shaderProgram;
 
 		// Attach a vertex shader
 		gl.attachShader(shaderProgram, vertShader); 
@@ -267,33 +213,20 @@ function Renderer(canvasId, world){
 		if(gl.getProgramInfoLog(shaderProgram)){
 			console.warn(gl.getProgramInfoLog(shaderProgram));
 		}
-
-        kernelLocation = gl.getUniformLocation(shaderProgram, "u_kernel[0]");
-        kernel = [
-        	1, 1, 1,
-            1, 1, 1,
-            1, 1, 1
-        ];
-        for (let i=0; i<9; i++){
-            kernel[i] = Math.random()*2 - 1;
-        }
-		// kernel[4] = 9;
-
-
-		vertexBuffer = gl.createBuffer();
+		let vertexBuffer = gl.createBuffer();
 
 		/*==========Defining and storing the geometry=======*/
 
-		var vertices = [
+		let vertices = [
 			-1.0, -1.0,
-			 1.0, -1.0,
+			1.0, -1.0,
 			-1.0,  1.0,
 			-1.0,  1.0,
-			 1.0, -1.0,
-			 1.0,  1.0
+			1.0, -1.0,
+			1.0,  1.0
 		];
 
-		size = ~~(vertices.length/2);
+		this.size = ~~(vertices.length/2);
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -302,7 +235,7 @@ function Renderer(canvasId, world){
 		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
 		// Get the attribute location
-		var coord = gl.getAttribLocation(shaderProgram, "coordinates");
+		let coord = gl.getAttribLocation(shaderProgram, "coordinates");
 
 		// Point an attribute to the currently bound VBO
 		gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
@@ -310,99 +243,205 @@ function Renderer(canvasId, world){
 		// Enable the attribute
 		gl.enableVertexAttribArray(coord);
 		
-		onePixelAttr = gl.getUniformLocation(shaderProgram, "onePixel");
-		doStepAttr = gl.getUniformLocation(shaderProgram, "doStep");
-
-		worldTexture = gl.createTexture();
-		gl.bindTexture(gl.TEXTURE_2D, worldTexture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, lastWidth, lastHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, world);
-
-		// texture and framebuffer
-
-		txa = gl.createTexture();
-		gl.bindTexture(gl.TEXTURE_2D, txa);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, lastWidth, lastHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-		
-		fba = gl.createFramebuffer();
-		gl.bindFramebuffer(gl.FRAMEBUFFER, fba);
-		
-		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, txa, 0);
-
-		// texture and framebuffer
-
-		txb = gl.createTexture();
-		gl.bindTexture(gl.TEXTURE_2D, txb);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, lastWidth, lastHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-		
-		fbb = gl.createFramebuffer();
-		gl.bindFramebuffer(gl.FRAMEBUFFER, fbb);
-		
-		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, txb, 0);
-
+		this.onePixelAttr = gl.getUniformLocation(shaderProgram, "onePixel");
+		this.doStepAttr = gl.getUniformLocation(shaderProgram, "doStep");
 	}
 
-	function render(){
+	setState(startState) {
+		let gl = this.gl;
 		
-		gl.uniform2f(onePixelAttr, 1/lastWidth, 1/lastHeight);
-		gl.uniform1f(doStepAttr, true);
-        gl.uniform1fv(kernelLocation, kernel);
+		this.stateTexture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, this.stateTexture);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-		gl.bindTexture(gl.TEXTURE_2D, worldTexture);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, startState);
 
-		renderInternally(false);
+		this.txa = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, this.txa);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+		
+		this.fba = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.fba);
+		
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.txa, 0);
+		
+		this.txb = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, this.txb);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+		
+		this.fbb = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbb);
+		
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.txb, 0);
+
+		gl.bindTexture(gl.TEXTURE_2D, this.stateTexture);
+	}
+
+	getState() {
+		let gl = this.gl;
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbb);
+		let data = new Uint8Array(this.width * this.height * 4);
+		gl.readPixels(0, 0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+		return data;
+	}
+
+	setColor(rgb) {
+		let gl = this.gl;
+		this.colorMask = {r:rgb[0], g:rgb[1], b:rgb[2]};
+		
+		this.colorMaskLocation = gl.getUniformLocation(this.shader, "colorMask");
+		
+		// let channel = -1;
+		// for (let i in rgb) {
+		// 	if (rgb[i] === 1){
+		// 		channel = i;
+		// 		break;
+		// 	}
+		// }
+		// if (channel === -1){
+		// 	console.error("RGB must have one full 1.0 value");
+		// 	return false;
+		// }
+		// return true;
+	}
+
+	setKernel(kernel) {
+		this.kernelLocation = this.gl.getUniformLocation(this.shader, "u_kernel[0]");
+		this.kernel = kernel;
+	}
+
+	beginRender(){
+		let gl = this.gl;
+		this.running = true;
+
+		gl.uniform2f(this.onePixelAttr, 1/this.width, 1/this.height);
+		gl.uniform1f(this.doStepAttr, true);
+        gl.uniform1fv(this.kernelLocation, this.kernel);
+		gl.uniform4f(this.colorMaskLocation, this.colorMask.r, this.colorMask.g, this.colorMask.b, 1.0);
+
+		// gl.bindTexture(gl.TEXTURE_2D, this.stateTexture);
+
+		this.render();
 		
 	}
 
-	function renderInternally(mode){
+	stopRender(){
+		this.running = false;
+		if (this.updaterequest)
+			window.cancelAnimationFrame(this.updaterequest);
+	}
 
-		gl.uniform1f(doStepAttr, true);
+	render(){
+		let gl = this.gl;
+		{
+			// first apply the update rule
+			gl.uniform1f(this.doStepAttr, true);
 
-		if(mode){
+			gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbb);
+			gl.drawArrays(gl.TRIANGLES, 0, this.size);
+			gl.bindTexture(gl.TEXTURE_2D, this.txb); // use texture b
 
-			gl.bindFramebuffer(gl.FRAMEBUFFER, fbb);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			gl.drawArrays(gl.TRIANGLES, 0, this.size);
 
-			gl.drawArrays(gl.TRIANGLES, 0, size);
-
-			gl.bindTexture(gl.TEXTURE_2D, txb);
-
-		} else {
+			gl.uniform1f(this.doStepAttr, false);
+		}
+		{
+			// then apply the color masking
+			gl.bindFramebuffer(gl.FRAMEBUFFER, this.fba);
+			gl.drawArrays(gl.TRIANGLES, 0, this.size);
+			gl.bindTexture(gl.TEXTURE_2D, this.txa); // use texture a
 			
-			gl.bindFramebuffer(gl.FRAMEBUFFER, fba);
-
-			gl.drawArrays(gl.TRIANGLES, 0, size);
-
-			gl.bindTexture(gl.TEXTURE_2D, txa);
-			
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			gl.drawArrays(gl.TRIANGLES, 0, this.size);
 		}
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.uniform1f(doStepAttr, false);
-
-		gl.drawArrays(gl.TRIANGLES, 0, size);
-
-		if(superfast){
-			setTimeout(function(){renderInternally(!mode);}, 0);
-		} else {
-			window.requestAnimationFrame(function(){renderInternally(!mode);});
+		if(this.running){
+			this.updaterequest = window.requestAnimationFrame(()=>{this.render();});
+			// setTimeout(()=>{this.renderInternally(!mode);}, 0); // set render speed
 		}
-		
 	}
-
-	return{
-		 render: render
-	};
-
 }
+
+function generateState(height, width, option='random') {
+	let cells = new Uint8Array(height * width * 4);
+	switch(option) {
+		case 'random':
+			for(let i = 0; i < cells.length; i++){
+				cells[i] = Math.floor(255 * Math.random())
+			}
+			cells[height * width * 2 + width*2] = 255;
+			break;
+
+		case 'random_bool':
+			for(let i = 0; i < cells.length; i++){
+				cells[i] = 255 * Math.floor(Math.random()*2);
+			}
+			break;
+
+		case 'center': 
+			for(let i = 0; i < cells.length; i++){
+				cells[i] = 0;
+			}
+			cells[height * width * 2 + width*2] = 255;
+			break;
+		
+		case 'center_top':
+			for(let i = 0; i < cells.length; i++){
+				cells[i] = 0;
+			}
+			cells[width*2] = 255;
+			break;
+	}
+	return cells;
+}
+
+function generateRandomKernel(min=-1, max=1) {
+	let range = max - min;
+	let kernel = [];
+	for (let i=0; i<9; i++){
+		kernel[i] = Math.random()*range + min;
+	}
+	return kernel;
+}
+
+const fragmentShader = document.getElementById('fragment-shader-2d').text;
+const vertexShader = document.getElementById('vertex-shader-2d').text;
+
+let canvas = document.getElementById("renderCanvas");
+
+let width = canvas.width;
+let height = canvas.height;
+
+let cells = generateState(height, width, 'random');
+let renderer = new Renderer(canvas);
+renderer.compileShaders(vertexShader, fragmentShader);
+renderer.setState(cells);
+renderer.setColor([1.0, 0.5, 0.5]);
+renderer.setKernel(generateRandomKernel(-10, 10));
+// renderer.setKernel(
+// 	[0, 0, 0,
+//      0, 0, 0,
+// 	 1, 2, 4]
+// )
+renderer.beginRender();
+
+document.body.onkeyup = function(e){
+    if(e.keyCode == 32){
+		renderer.stopRender();
+        renderer.setKernel(generateRandomKernel());
+		renderer.beginRender();
+	}
+}
+
 </script>
