@@ -1,6 +1,6 @@
 
 <div id="canvasContainer">
-    <canvas id="renderCanvas" width="1024" height="1024"></canvas>
+    <canvas id="renderCanvas" width="1700" height="1024"></canvas>
 </div>
 
 <style>
@@ -100,7 +100,9 @@ body{
         //return 1./pow(2., (pow(x-4.5, 2.))); // gaussian
         //return (exp(x)-exp(-x))/(exp(x)+exp(-x));
         //return 1./(1. + exp(-x+3.5)); // sigmoid
-		//return (-pow(2.*x-2.5, 2.)+1.); // power hill
+		//return (-pow(2.*(x-1.3), 2.)+1.); // power hill
+		//return (-pow(2.*(x-2.5), 2.)+1.) + (-pow(2.*(x+2.5), 2.)+1.); // power hill
+
 
         //if (x==0.)
         //    return 0.;
@@ -112,23 +114,22 @@ body{
     void main(void){
 
         if(doStep){
-            float sum = texture2D(u_image, getCoords(texCoord, vec2(1.0, -1.0))).r * u_kernel[0]
-                + texture2D(u_image, getCoords(texCoord, vec2(0.0, -1.0))).r * u_kernel[1]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, -1.0))).r * u_kernel[2]
-                + texture2D(u_image, getCoords(texCoord, vec2(1.0, 0.0))).r * u_kernel[3]
-                + texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).r * u_kernel[4]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, 0.0))).r * u_kernel[5]
-                + texture2D(u_image, getCoords(texCoord, vec2(1.0, 1.0))).r * u_kernel[6]
-                + texture2D(u_image, getCoords(texCoord, vec2(0.0, 1.0))).r * u_kernel[7]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, 1.0))).r * u_kernel[8];
+            float sum = texture2D(u_image, getCoords(texCoord, vec2(1.0, -1.0))).COLOR_CHANNEL * u_kernel[0]
+                + texture2D(u_image, getCoords(texCoord, vec2(0.0, -1.0))).COLOR_CHANNEL * u_kernel[1]
+                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, -1.0))).COLOR_CHANNEL * u_kernel[2]
+                + texture2D(u_image, getCoords(texCoord, vec2(1.0, 0.0))).COLOR_CHANNEL * u_kernel[3]
+                + texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).COLOR_CHANNEL * u_kernel[4]
+                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, 0.0))).COLOR_CHANNEL * u_kernel[5]
+                + texture2D(u_image, getCoords(texCoord, vec2(1.0, 1.0))).COLOR_CHANNEL * u_kernel[6]
+                + texture2D(u_image, getCoords(texCoord, vec2(0.0, 1.0))).COLOR_CHANNEL * u_kernel[7]
+                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, 1.0))).COLOR_CHANNEL * u_kernel[8];
             
             float x = activation(sum);
 
-			//x += texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).r; // cumulative display
+			//x += texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).COLOR_CHANNEL; // cumulative display
             gl_FragColor = vec4(x, x, x, x);
 
         } else {
-			// 250, 158, 255
 			// color masking
 			gl_FragColor = texture2D(u_image, texCoord).rgba * colorMask;
             
@@ -164,16 +165,20 @@ class Renderer {
 		this.gl = canvas.getContext("webgl");
 		this.height = canvas.height;
 		this.width = canvas.width;
+		this.channel = 'r';
 	}
 
-	compileShaders(vertexShaderProgram, fragShaderProgram) {
+	compileShaders(vertexSource, fragSource) {
+		this.vertexSource = vertexSource; // saved without string replacements
+		this.fragSource = fragSource;
 		let gl = this.gl;
+		fragSource = this.setFragValues(fragSource);
 
 		// Create a vertex shader object
 		let vertShader = gl.createShader(gl.VERTEX_SHADER);
 
 		// Attach vertex shader source code
-		gl.shaderSource(vertShader, vertexShaderProgram);
+		gl.shaderSource(vertShader, vertexSource);
 
 		// Compile the vertex shader
 		gl.compileShader(vertShader);
@@ -182,7 +187,7 @@ class Renderer {
 		let fragShader = gl.createShader(gl.FRAGMENT_SHADER);
 
 		// Attach fragment shader source code
-		gl.shaderSource(fragShader, fragShaderProgram);
+		gl.shaderSource(fragShader, fragSource);
 
 		// Compile the fragmentt shader
 		gl.compileShader(fragShader);
@@ -245,6 +250,17 @@ class Renderer {
 		
 		this.onePixelAttr = gl.getUniformLocation(shaderProgram, "onePixel");
 		this.doStepAttr = gl.getUniformLocation(shaderProgram, "doStep");
+		this.kernelLocation = this.gl.getUniformLocation(this.shader, "u_kernel[0]");
+		this.colorMaskLocation = gl.getUniformLocation(this.shader, "colorMask");
+	}
+
+	setFragValues(source) {
+		source = source.replaceAll("COLOR_CHANNEL", this.channel);
+		return source;
+	}
+
+	recompile() {
+		this.compileShaders(this.vertexSource, this.fragSource);
 	}
 
 	setState(startState) {
@@ -299,24 +315,26 @@ class Renderer {
 		let gl = this.gl;
 		this.colorMask = {r:rgb[0], g:rgb[1], b:rgb[2]};
 		
-		this.colorMaskLocation = gl.getUniformLocation(this.shader, "colorMask");
-		
-		// let channel = -1;
-		// for (let i in rgb) {
-		// 	if (rgb[i] === 1){
-		// 		channel = i;
-		// 		break;
-		// 	}
-		// }
-		// if (channel === -1){
-		// 	console.error("RGB must have one full 1.0 value");
-		// 	return false;
-		// }
-		// return true;
+		let channel = -1;
+		for (let i in rgb) {
+			if (rgb[i] === 1){
+				channel = i;
+				break;
+			}
+		}
+		if (channel === -1){
+			console.error("RGB must have one full 1.0 value");
+			return false;
+		}
+		let channel_string = ['r', 'g', 'b'][channel];
+		if (this.channel === channel_string) {
+			return false; // no need to recompile
+		}
+		this.channel = channel_string;
+		return true; // need to recompile
 	}
 
 	setKernel(kernel) {
-		this.kernelLocation = this.gl.getUniformLocation(this.shader, "u_kernel[0]");
 		this.kernel = kernel;
 	}
 
@@ -415,6 +433,15 @@ function generateRandomKernel(min=-1, max=1) {
 	return kernel;
 }
 
+function generateRandomColor() {
+	color = [0, 0, 0]
+	for (let i in color) {
+		color[i] = Math.random();
+	}
+	color[Math.floor(Math.random()*3)] = 1;
+	return color;
+}
+
 const fragmentShader = document.getElementById('fragment-shader-2d').text;
 const vertexShader = document.getElementById('vertex-shader-2d').text;
 
@@ -423,22 +450,25 @@ let canvas = document.getElementById("renderCanvas");
 let width = canvas.width;
 let height = canvas.height;
 
-let cells = generateState(height, width, 'random');
+let cells = generateState(height, width, 'center');
 let renderer = new Renderer(canvas);
+renderer.setColor(generateRandomColor());
 renderer.compileShaders(vertexShader, fragmentShader);
 renderer.setState(cells);
-renderer.setColor([1.0, 0.5, 0.5]);
-renderer.setKernel(generateRandomKernel(-10, 10));
+renderer.setKernel(generateRandomKernel());
 // renderer.setKernel(
-// 	[0, 0, 0,
-//      0, 0, 0,
-// 	 1, 2, 4]
+// 	[1, 1, 1,
+//      1, 1, 1,
+// 	 1, 1, 1]
 // )
 renderer.beginRender();
 
 document.body.onkeyup = function(e){
     if(e.keyCode == 32){
 		renderer.stopRender();
+		let recompile = renderer.setColor(generateRandomColor());
+		if (recompile)
+			renderer.recompile();
         renderer.setKernel(generateRandomKernel());
 		renderer.beginRender();
 	}
