@@ -1,6 +1,6 @@
 
 <div id="canvasContainer">
-    <canvas id="renderCanvas" width="1700" height="1024"></canvas>
+    <canvas id="renderCanvas" width="1000" height="500"></canvas>
 </div>
 
 <style>
@@ -14,6 +14,7 @@
 html, body{
 	height: 100%;
 	width: 100%;
+	background-color: white;
 }
 
 body{
@@ -42,33 +43,11 @@ body{
 }
 </style>
 
-
-<script  id="fragment-shader-2d" type="x-shader/x-fragment">
-	#define PI 3.1415926538
-
-    precision mediump float;
-
-    uniform sampler2D u_image;
-
-    varying vec2 texCoord;
-
-    uniform vec2 onePixel;
-
-    uniform bool doStep;
-
-	uniform vec4 colorMask;
-
-	uniform float u_kernel[9];
-
-
-    vec2 getCoords(vec2 coord, vec2 offset){
-        //return vec2(mod(coord.x + onePixel.x * offset.x, 1.0), mod(coord.y + onePixel.y * offset.y, 1.0));
-        return mod(coord + onePixel * offset, 1.0);
-    }
+<script  id="activation-source" type="x-shader/x-fragment">
 
     float activation(float x) {
 		// input is in range [min(0, sum(negative values)), max(0, sum(positive values))]
-        return x;
+        //return x;
         //return sin(x - PI/2.);//sin(x) + cos(x) + sin(2.*x) + cos(2.*x) + sin(3.*x) + cos(3.*x) + sin(4.*x) + cos(5.*x);
 		//return abs(x);
         //return max(x,0.); // relu
@@ -93,13 +72,13 @@ body{
 		//return log(sin(x - 1.85)) + 1.;
 
 		//return sin(1./x);
-		//return (exp(2.*x)-1.)/(exp(2.*x)+1.); //tanh
+		return (exp(2.*x)-1.)/(exp(2.*x)+1.); //tanh
 		//return (-1./(x+1.)) + 1.; // similar tanh?
 
         //return x;
         //return 1./pow(2., (pow(x-4.5, 2.))); // gaussian
         //return (exp(x)-exp(-x))/(exp(x)+exp(-x));
-        //return 1./(1. + exp(-x+3.5)); // sigmoid
+        //return 1./(1. + exp(-x+3.)); // sigmoid
 		//return (-pow(2.*(x-1.3), 2.)+1.); // power hill
 		//return (-pow(2.*(x-2.5), 2.)+1.) + (-pow(2.*(x+2.5), 2.)+1.); // power hill
 
@@ -110,6 +89,33 @@ body{
 
 		// returned value will be clipped between [0,1]
     }
+</script>
+
+
+<script  id="fragment-shader-2d" type="x-shader/x-fragment">
+	#define PI 3.1415926538
+
+    precision mediump float;
+
+    uniform sampler2D u_image;
+
+    varying vec2 texCoord;
+
+    uniform vec2 onePixel;
+
+    uniform bool doStep;
+
+	uniform vec4 colorMask;
+
+	uniform float u_kernel[9];
+
+
+    vec2 getCoords(vec2 coord, vec2 offset){
+        //return vec2(mod(coord.x + onePixel.x * offset.x, 1.0), mod(coord.y + onePixel.y * offset.y, 1.0));
+        return mod(coord + onePixel * offset, 1.0);
+    }
+
+	ACTIVATION_FUNCTION
 
     void main(void){
 
@@ -162,16 +168,43 @@ body{
 
 class Renderer {
 	constructor(canvas) {
-		this.gl = canvas.getContext("webgl");
+		canvas.height = window.innerHeight;
+		canvas.width = window.innerWidth;
 		this.height = canvas.height;
 		this.width = canvas.width;
+		
+		this.gl = canvas.getContext("webgl");
+
+		window.onresize = () => {
+			// this.stopRender();
+			// console.log(this.height)
+			// canvas.height = window.innerHeight;
+			// canvas.width = window.innerWidth;
+			// this.height = canvas.height;
+			// this.width = canvas.width;
+			// console.log(this.height)
+			// // this.recompile();
+			// this.setState(this.generateState('random'));
+			// this.beginRender();
+		};
 		this.channel = 'r';
+		this.setBrush(1, 1);
+		this.activationSource = `
+		float activation(float x) {
+			return x;
+		}
+		`;
 	}
 
-	compileShaders(vertexSource, fragSource) {
+
+	compileShaders(vertexSource, fragSource, activationSource=undefined) {
 		this.vertexSource = vertexSource; // saved without string replacements
 		this.fragSource = fragSource;
 		let gl = this.gl;
+
+		if (activationSource){
+			this.setActivationSource(activationSource);
+		}
 		fragSource = this.setFragValues(fragSource);
 
 		// Create a vertex shader object
@@ -248,19 +281,29 @@ class Renderer {
 		// Enable the attribute
 		gl.enableVertexAttribArray(coord);
 		
+		// define attributes
 		this.onePixelAttr = gl.getUniformLocation(shaderProgram, "onePixel");
 		this.doStepAttr = gl.getUniformLocation(shaderProgram, "doStep");
-		this.kernelLocation = this.gl.getUniformLocation(this.shader, "u_kernel[0]");
-		this.colorMaskLocation = gl.getUniformLocation(this.shader, "colorMask");
+		this.kernelAttr = gl.getUniformLocation(this.shader, "u_kernel[0]");
+		this.colorMaskAttr = gl.getUniformLocation(this.shader, "colorMask");
 	}
 
-	setFragValues(source) {
-		source = source.replaceAll("COLOR_CHANNEL", this.channel);
-		return source;
+	setFragValues(fragSource) {
+		fragSource = fragSource.replaceAll("COLOR_CHANNEL", this.channel);
+		fragSource = fragSource.replace("ACTIVATION_FUNCTION", this.activationSource);
+		return fragSource;
 	}
 
 	recompile() {
 		this.compileShaders(this.vertexSource, this.fragSource);
+	}
+
+	getState() {
+		let gl = this.gl;
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbb);
+		let data = new Uint8Array(this.width * this.height * 4);
+		gl.readPixels(0, 0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+		return data;
 	}
 
 	setState(startState) {
@@ -303,15 +346,14 @@ class Renderer {
 		gl.bindTexture(gl.TEXTURE_2D, this.stateTexture);
 	}
 
-	getState() {
-		let gl = this.gl;
-		gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbb);
-		let data = new Uint8Array(this.width * this.height * 4);
-		gl.readPixels(0, 0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
-		return data;
+	setActivationSource(activationSource) {
+		// always requires recompilation
+		this.activationSource = activationSource;
 	}
 
 	setColor(rgb) {
+		// requires one rgb value to be 1.0
+		// returns true if requires recompilation
 		let gl = this.gl;
 		this.colorMask = {r:rgb[0], g:rgb[1], b:rgb[2]};
 		
@@ -322,10 +364,9 @@ class Renderer {
 				break;
 			}
 		}
-		if (channel === -1){
-			console.error("RGB must have one full 1.0 value");
-			return false;
-		}
+		if (channel === -1)
+			throw "RGB must have one full 1.0 value";
+
 		let channel_string = ['r', 'g', 'b'][channel];
 		if (this.channel === channel_string) {
 			return false; // no need to recompile
@@ -338,16 +379,27 @@ class Renderer {
 		this.kernel = kernel;
 	}
 
+	setBrush(size, value) {
+		this.brush_size = size;
+		let arr_size = size*size*4;
+		this.brush_arr = new Uint8Array(arr_size);
+		this.brush_value = value;
+		for (let i=0; i<arr_size; i++) {
+			this.brush_arr[i] = value*255;
+		}
+	}
+
 	beginRender(){
 		let gl = this.gl;
+		if (this.running)
+			throw 'called beginRender when already rendering'
 		this.running = true;
+		// console.log(1/this.width)
 
 		gl.uniform2f(this.onePixelAttr, 1/this.width, 1/this.height);
 		gl.uniform1f(this.doStepAttr, true);
-        gl.uniform1fv(this.kernelLocation, this.kernel);
-		gl.uniform4f(this.colorMaskLocation, this.colorMask.r, this.colorMask.g, this.colorMask.b, 1.0);
-
-		// gl.bindTexture(gl.TEXTURE_2D, this.stateTexture);
+        gl.uniform1fv(this.kernelAttr, this.kernel);
+		gl.uniform4f(this.colorMaskAttr, this.colorMask.r, this.colorMask.g, this.colorMask.b, 1.0);
 
 		this.render();
 		
@@ -361,6 +413,7 @@ class Renderer {
 
 	render(){
 		let gl = this.gl;
+
 		{
 			// first apply the update rule
 			gl.uniform1f(this.doStepAttr, true);
@@ -374,6 +427,7 @@ class Renderer {
 
 			gl.uniform1f(this.doStepAttr, false);
 		}
+
 		{
 			// then apply the color masking
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this.fba);
@@ -386,42 +440,67 @@ class Renderer {
 
 		if(this.running){
 			this.updaterequest = window.requestAnimationFrame(()=>{this.render();});
-			// setTimeout(()=>{this.renderInternally(!mode);}, 0); // set render speed
+			// setTimeout(()=>{this.render();}, 0); // set render speed
 		}
 	}
-}
 
-function generateState(height, width, option='random') {
-	let cells = new Uint8Array(height * width * 4);
-	switch(option) {
-		case 'random':
-			for(let i = 0; i < cells.length; i++){
-				cells[i] = Math.floor(255 * Math.random())
-			}
-			cells[height * width * 2 + width*2] = 255;
-			break;
+	poke(x, y) {
+		let gl = this.gl;
+		y = this.height - y; // reverse y
 
-		case 'random_bool':
-			for(let i = 0; i < cells.length; i++){
-				cells[i] = 255 * Math.floor(Math.random()*2);
-			}
-			break;
-
-		case 'center': 
-			for(let i = 0; i < cells.length; i++){
-				cells[i] = 0;
-			}
-			cells[height * width * 2 + width*2] = 255;
-			break;
-		
-		case 'center_top':
-			for(let i = 0; i < cells.length; i++){
-				cells[i] = 0;
-			}
-			cells[width*2] = 255;
-			break;
+		x = x - Math.floor(this.brush_size/2); // center brush
+		y = y - Math.floor(this.brush_size/2);
+		gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, this.brush_size, this.brush_size,
+                     gl.RGBA, gl.UNSIGNED_BYTE,
+                     this.brush_arr);
 	}
-	return cells;
+
+	generateState(option='random') {
+		let width = this.width, height = this.height;
+		let cells = new Uint8Array(height * width * 4);
+		switch(option) {
+			case 'random':
+				for(let i = 0; i < cells.length; i++){
+					cells[i] = Math.floor(255 * Math.random())
+				}
+				cells[height * width * 2 + width*2] = 255;
+				break;
+
+			case 'random_bool':
+				for(let i = 0; i < cells.length; i++){
+					cells[i] = 255 * Math.floor(Math.random()*2);
+				}
+				break;
+
+			case 'center': 
+				for(let i = 0; i < cells.length; i++){
+					cells[i] = 0;
+				}
+				let center = height * width * 2 + width*2
+				cells[center] = 255;
+				cells[center+1] = 255;
+				cells[center+2] = 255;
+				cells[center+3] = 255;
+				break;
+			
+			case 'center_top':
+				for(let i = 0; i < cells.length; i++){
+					cells[i] = 0;
+				}
+				cells[width*2] = 255;
+				cells[width*2+1] = 255;
+				cells[width*2+2] = 255;
+				cells[width*2+3] = 255;
+				break;
+
+			case 'empty':
+				for(let i = 0; i < cells.length; i++){
+					cells[i] = 0;
+				}
+				break;
+		}
+		return cells;
+	}
 }
 
 function generateRandomKernel(min=-1, max=1) {
@@ -444,34 +523,65 @@ function generateRandomColor() {
 
 const fragmentShader = document.getElementById('fragment-shader-2d').text;
 const vertexShader = document.getElementById('vertex-shader-2d').text;
+const activationSource = document.getElementById('activation-source').text;
 
 let canvas = document.getElementById("renderCanvas");
 
 let width = canvas.width;
 let height = canvas.height;
 
-let cells = generateState(height, width, 'center');
+let state_type = 'random';
 let renderer = new Renderer(canvas);
 renderer.setColor(generateRandomColor());
-renderer.compileShaders(vertexShader, fragmentShader);
-renderer.setState(cells);
-renderer.setKernel(generateRandomKernel());
+renderer.compileShaders(vertexShader, fragmentShader, activationSource);
+renderer.setState(renderer.generateState(state_type));
+renderer.setKernel(generateRandomKernel(-10, 10));
 // renderer.setKernel(
-// 	[1, 1, 1,
-//      1, 1, 1,
-// 	 1, 1, 1]
+// 	[0, 0, 0,
+//      0, 1, 0,
+// 	 0, 0, 0]
 // )
 renderer.beginRender();
 
 document.body.onkeyup = function(e){
     if(e.keyCode == 32){
+		if (renderer.running)
+			renderer.stopRender();
+		else
+			renderer.beginRender();
+	}
+	else if(e.keyCode == 65){
 		renderer.stopRender();
-		let recompile = renderer.setColor(generateRandomColor());
-		if (recompile)
+		let need_recompile = renderer.setColor(generateRandomColor());
+		// renderer.setActivationSource(activationSource);
+		if (need_recompile)
 			renderer.recompile();
-        renderer.setKernel(generateRandomKernel());
+        renderer.setKernel(generateRandomKernel(-1, 1));
 		renderer.beginRender();
 	}
+	else if(e.keyCode == 87){
+		// renderer.stopRender();
+		renderer.setState(renderer.generateState(state_type))
+	}
+	else if(e.keyCode == 83){
+		
+	}
+
+}
+
+let down = false;
+canvas.onmousedown = function(e){
+	down = true;
+    renderer.poke(e.x, e.y);
+}
+
+canvas.onmouseup = function(e){
+	down = false;
+}
+
+canvas.onmousemove = function(e){
+	if (down)
+    	renderer.poke(e.x, e.y);
 }
 
 </script>
