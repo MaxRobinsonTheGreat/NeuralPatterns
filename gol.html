@@ -14,7 +14,7 @@
 html, body{
 	height: 100%;
 	width: 100%;
-	background-color: white;
+	background-color: black;
 }
 
 body{
@@ -44,22 +44,24 @@ body{
 </style>
 
 <script  id="activation-source" type="x-shader/x-fragment">
-
+	
     float activation(float x) {
 		// input is in range [min(0, sum(negative values)), max(0, sum(positive values))]
-        //return x;
+        return x;
         //return sin(x - PI/2.);//sin(x) + cos(x) + sin(2.*x) + cos(2.*x) + sin(3.*x) + cos(3.*x) + sin(4.*x) + cos(5.*x);
 		//return abs(x);
         //return max(x,0.); // relu
         //return 1.0/(4.0*abs(x-3.18)+1.0); // inverse
 		//return abs(x);
-		// game of life
+		
+		// Conway's Game of Life
 		//if (x == 3. || x == 11. || x == 12.){
 		//	return 1.0;
 		//}
 		//return 0.;
 		//return sin(x);
-		// rule 30;
+
+		// Wolfram's Rule 30;
 		//if (x == 1. || x == 2. || x == 3.|| x == 4.){
 		//	return 1.0;
 		//}
@@ -72,7 +74,7 @@ body{
 		//return log(sin(x - 1.85)) + 1.;
 
 		//return sin(1./x);
-		return (exp(2.*x)-1.)/(exp(2.*x)+1.); //tanh
+		//return (exp(2.*x)-1.)/(exp(2.*x)+1.); //tanh
 		//return (-1./(x+1.)) + 1.; // similar tanh?
 
         //return x;
@@ -176,24 +178,23 @@ class Renderer {
 		this.gl = canvas.getContext("webgl");
 
 		window.onresize = () => {
-			// this.stopRender();
-			// console.log(this.height)
-			// canvas.height = window.innerHeight;
-			// canvas.width = window.innerWidth;
-			// this.height = canvas.height;
-			// this.width = canvas.width;
-			// console.log(this.height)
-			// // this.recompile();
-			// this.setState(this.generateState('random'));
-			// this.beginRender();
+			this.stopRender();
+			canvas.height = window.innerHeight;
+			canvas.width = window.innerWidth;
+			this.height = canvas.height;
+			this.width = canvas.width;
+			this.gl.viewport(0, 0, this.width, this.height);
+			this.setState(this.generateState(this.start_state_type));
+			this.beginRender();
 		};
 		this.channel = 'r';
-		this.setBrush(1, 1);
+		this.setBrush(3, 1);
 		this.activationSource = `
 		float activation(float x) {
 			return x;
 		}
 		`;
+		this.start_state_type = 'random';
 	}
 
 
@@ -456,8 +457,10 @@ class Renderer {
 	}
 
 	generateState(option='random') {
-		let width = this.width, height = this.height;
+		let width = this.width;
+		let height = this.height;
 		let cells = new Uint8Array(height * width * 4);
+		this.start_state_type = option;
 		switch(option) {
 			case 'random':
 				for(let i = 0; i < cells.length; i++){
@@ -530,7 +533,7 @@ let canvas = document.getElementById("renderCanvas");
 let width = canvas.width;
 let height = canvas.height;
 
-let state_type = 'random';
+let state_type = 'center';
 let renderer = new Renderer(canvas);
 renderer.setColor(generateRandomColor());
 renderer.compileShaders(vertexShader, fragmentShader, activationSource);
