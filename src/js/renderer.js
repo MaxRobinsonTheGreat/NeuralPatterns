@@ -1,173 +1,13 @@
-
-<div id="canvasContainer">
-    <canvas id="renderCanvas" width="1000" height="500"></canvas>
-</div>
-
-<style>
-
-html, body{
-	height: 100%;
-	width: 100%;
-	border: none;
-	margin: 0px;
-	padding: 0px;
-	background-color: black;
-}
-
-body{
-	overflow: hidden;
-}
-
-#canvasContainer{
-	position: absolute;
-	/* height: 100%; */
-
-}
-
-#renderCanvas{
-	/* height: 1024px;
-	width: 2048px; */
-	/* height: 100%; */
-
-	background-color: #000000;
-
-	/* image-rendering: optimizeSpeed;              */
-	/* image-rendering: -moz-crisp-edges;           */
-	/* image-rendering: -webkit-optimize-contrast;  */
-	/* image-rendering: -o-crisp-edges;             */
-	/* image-rendering: pixelated;                  */
-	/* -ms-interpolation-mode: nearest-neighbor;   IE */
-}
-</style>
-
-<script  id="activation-source" type="x-shader/x-fragment">
-	
-    float activation(float x) {
-		// input is in range [min(0, sum(negative values)), max(0, sum(positive values))]
-        //return x;
-        //return sin(x - PI/2.);//sin(x) + cos(x) + sin(2.*x) + cos(2.*x) + sin(3.*x) + cos(3.*x) + sin(4.*x) + cos(5.*x);
-		//return abs(x)/2.;
-        //return max(x,0.); // relu
-        //return 1.0/(4.0*abs(x-3.18)+1.0); // inverse
-		
-		// Conway's Game of Life
-		//if (x == 3. || x == 11. || x == 12.){
-		//	return 1.0;
-		//}
-		//return 0.;
-		//return sin(x);
-
-		// Wolfram's Rule 30;
-		//if (x == 1. || x == 2. || x == 3.|| x == 4.){
-		//	return 1.0;
-		//}
-		//return 0.;
-
-		//return x;
-		//if (x > 10.) {
-		//	return 1.;
-		//}
-		//return log(x+1.);
-
-		//return sin(1./x);
-		//return abs((exp(2.*x)-1.)/(exp(2.*x)+1.)); //tanh
-		return (-1./(pow(x, 2.)+1.)) + 1.; // similar tanh?
-
-        //return x;
-        //return 1./pow(2., (pow(x-4.5, 2.))); // gaussian
-		//return -1./pow(2., (pow(x, 2.))) + 1.; // inverse gaussian
-        //return (exp(x)-exp(-x))/(exp(x)+exp(-x));
-        //return 1./(1. + exp(-x+3.)); // sigmoid
-		//return (-pow(2.*(x-1.3), 2.)+1.); // power hill
-		//return (-pow(2.*(x-2.5), 2.)+1.) + (-pow(2.*(x+2.5), 2.)+1.); // power hill
-
-
-        //if (x==0.)
-        //    return 0.;
-        //return sin(1./x);
-
-		// returned value will be clipped between [0,1]
-    }
-</script>
-
-
-<script  id="fragment-shader-2d" type="x-shader/x-fragment">
-    precision mediump float;
-
-    uniform sampler2D u_image;
-
-    varying vec2 texCoord;
-
-    uniform vec2 onePixel;
-
-    uniform bool doStep;
-
-	uniform vec4 colorMask;
-
-	uniform float u_kernel[9];
-
-
-    vec2 getCoords(vec2 coord, vec2 offset){
-        return mod(coord + onePixel * offset, 1.0);
-    }
-
-	ACTIVATION_FUNCTION
-
-    void main(void){
-
-        if(doStep){
-            float sum = texture2D(u_image, getCoords(texCoord, vec2(1.0, -1.0))).COLOR_CHANNEL * u_kernel[0]
-                + texture2D(u_image, getCoords(texCoord, vec2(0.0, -1.0))).COLOR_CHANNEL * u_kernel[1]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, -1.0))).COLOR_CHANNEL * u_kernel[2]
-                + texture2D(u_image, getCoords(texCoord, vec2(1.0, 0.0))).COLOR_CHANNEL * u_kernel[3]
-                + texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).COLOR_CHANNEL * u_kernel[4]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, 0.0))).COLOR_CHANNEL * u_kernel[5]
-                + texture2D(u_image, getCoords(texCoord, vec2(1.0, 1.0))).COLOR_CHANNEL * u_kernel[6]
-                + texture2D(u_image, getCoords(texCoord, vec2(0.0, 1.0))).COLOR_CHANNEL * u_kernel[7]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, 1.0))).COLOR_CHANNEL * u_kernel[8];
-            
-            float x = activation(sum);
-
-			//x += texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).COLOR_CHANNEL; // cumulative display
-            gl_FragColor = vec4(x, x, x, x);
-
-        } else {
-			// color masking
-			gl_FragColor = texture2D(u_image, texCoord).rgba * colorMask;
-            
-        }
-    }
-</script>
-
-<script  id="vertex-shader-2d" type="x-shader/x-vertex">
-    attribute vec2 coordinates;
-
-    varying vec2 texCoord;
-    
-    void main(void){
-        
-        texCoord = (coordinates/2.0 + 0.5);
-        
-        gl_Position = vec4(coordinates, 1.0, 1.0);
-    
-    }
-</script>
-
-<script>
-
-// accordion settings menu
-// About 
-// Start State - dropdown (center, random, random boolean, image upload), edges dropdown
-// Update Rule - filter (randomize button, random range), activation function, dropdown()
-// Display - color, culumative, wrap
-
+import Utils from './utils.js';
 
 class Renderer {
 	constructor(canvas) {
+        console.log(canvas)
 		canvas.height = window.innerHeight;
 		canvas.width = window.innerWidth;
 		this.height = canvas.height;
 		this.width = canvas.width;
+        this.start_state_type = 'center';
 		
 		this.gl = canvas.getContext("webgl");
 
@@ -180,7 +20,7 @@ class Renderer {
 			this.height = canvas.height;
 			this.width = canvas.width;
 			this.gl.viewport(0, 0, this.width, this.height);
-			this.setState(this.generateState(this.start_state_type));
+			this.setState(Utils.generateState(this.width, this.height, this.start_state_type));
 			this.beginRender();
 		};
 		this.channel = 'r';
@@ -351,7 +191,6 @@ class Renderer {
 	setColor(rgb) {
 		// requires one rgb value to be 1.0
 		// returns true if requires recompilation
-		let gl = this.gl;
 		this.colorMask = {r:rgb[0], g:rgb[1], b:rgb[2]};
 		
 		let channel = -1;
@@ -450,161 +289,6 @@ class Renderer {
                      gl.RGBA, gl.UNSIGNED_BYTE,
                      this.brush_arr);
 	}
-
-	generateState(option='random') {
-		let width = this.width;
-		let height = this.height;
-		let cells = new Uint8Array(height * width * 4);
-		this.start_state_type = option;
-		switch(option) {
-			case 'random':
-				for(let i = 0; i < cells.length; i++){
-					cells[i] = Math.floor(255 * Math.random())
-				}
-				cells[height * width * 2 + width*2] = 255;
-				break;
-
-			case 'random_bool':
-				for(let i = 0; i < cells.length; i++){
-					cells[i] = 255 * Math.floor(Math.random()*2);
-				}
-				break;
-
-			case 'center': 
-				for(let i = 0; i < cells.length; i++){
-					cells[i] = 0;
-				}
-				let center = Math.floor(cells.length/2) - 2;
-				if (height%2 === 0) {
-					// if height is even, it breaks for some reason
-					center += width*2;
-				}
-				cells[center] = 255;
-				cells[center+1] = 255;
-				cells[center+2] = 255;
-				cells[center+3] = 255;
-				break;
-			
-			case 'center_top':
-				for(let i = 0; i < cells.length; i++){
-					cells[i] = 0;
-				}
-				cells[width*2] = 255;
-				cells[width*2+1] = 255;
-				cells[width*2+2] = 255;
-				cells[width*2+3] = 255;
-				break;
-
-			case 'empty':
-				for(let i = 0; i < cells.length; i++){
-					cells[i] = 0;
-				}
-				break;
-		}
-		return cells;
-	}
 }
 
-function generateRandomKernel(min=-1, max=1, h_symmetry=false, v_symmetry=false) {
-	let range = max - min;
-	let kernel = new Float32Array(9);
-
-	for (let i in kernel){
-		kernel[i] = Math.random()*range + min;
-	}
-
-	if (h_symmetry && v_symmetry){
-		kernel[2] = kernel[0];
-		kernel[6] = kernel[0];
-		kernel[8] = kernel[0];
-		kernel[7] = kernel[1];
-		kernel[5] = kernel[3];
-	}
-	else if (h_symmetry){
-		kernel[6] = kernel[0];
-		kernel[7] = kernel[1];
-		kernel[8] = kernel[2];
-
-	}
-	else if (v_symmetry){
-		kernel[2] = kernel[0];
-		kernel[5] = kernel[3];
-		kernel[8] = kernel[6];
-	}
-	return kernel;
-}
-
-function generateRandomColor() {
-	color = [0, 0, 0]
-	for (let i in color) {
-		color[i] = Math.random();
-	}
-	color[Math.floor(Math.random()*3)] = 1;
-	return color;
-}
-
-const fragmentShader = document.getElementById('fragment-shader-2d').text;
-const vertexShader = document.getElementById('vertex-shader-2d').text;
-const activationSource = document.getElementById('activation-source').text;
-
-let canvas = document.getElementById("renderCanvas");
-
-let state_type = 'center';
-let renderer = new Renderer(canvas);
-renderer.setColor(generateRandomColor());
-renderer.compileShaders(vertexShader, fragmentShader, activationSource);
-renderer.setState(renderer.generateState(state_type));
-renderer.setKernel(generateRandomKernel(-1, 1, false, false));
-// renderer.setKernel(
-// [1, 0, -1,
-//  2, 1, -2,
-//  1, 0, -1]
-// )
-renderer.beginRender();
-
-document.body.onkeyup = function(e){
-    if(e.keyCode == 32){
-		if (renderer.running)
-			renderer.stopRender();
-		else
-			renderer.beginRender();
-	}
-	else if(e.keyCode == 65){
-		renderer.stopRender();
-		let need_recompile = renderer.setColor(generateRandomColor());
-		// renderer.setActivationSource(activationSource);
-		if (need_recompile)
-			renderer.recompile();
-        renderer.setKernel(generateRandomKernel(-1, 1, true, false));
-		renderer.beginRender();
-	}
-	else if(e.keyCode == 87){
-		// renderer.stopRender();
-		renderer.setState(renderer.generateState(state_type))
-	}
-	else if(e.keyCode == 83){
-		
-	}
-
-}
-
-let down = false;
-canvas.onmousedown = function(e){
-	down = true;
-    renderer.poke(e.x, e.y);
-}
-
-canvas.onmouseup = function(e){
-	down = false;
-}
-
-canvas.onmousemove = function(e){
-	if (down)
-    	renderer.poke(e.x, e.y);
-}
-
-canvas.scroll = (e) => {
-	e.preventDetault();
-}
-
-</script>
+export default Renderer;
