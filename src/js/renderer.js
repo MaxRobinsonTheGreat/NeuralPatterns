@@ -1,5 +1,3 @@
-import Utils from './utils.js';
-
 class Renderer {
 	constructor(canvas) {
 		canvas.height = window.innerHeight;
@@ -9,18 +7,6 @@ class Renderer {
 		
 		this.gl = canvas.getContext("webgl");
 
-		window.onresize = () => {
-			if (window.innerWidth === this.width && window.innerHeight === this.height)
-				return;
-			this.stopRender();
-			canvas.height = window.innerHeight;
-			canvas.width = window.innerWidth;
-			this.height = canvas.height;
-			this.width = canvas.width;
-			this.gl.viewport(0, 0, this.width, this.height);
-			this.setState(Utils.generateState(this.width, this.height, 'random'));
-			this.beginRender();
-		};
 		this.setBrush(5, 1);
 		this.activationSource = `
 		float activation(float x) {

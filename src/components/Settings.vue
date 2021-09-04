@@ -4,7 +4,9 @@
             min, load, save
         </div>
         <div id='accordion'>
-            <AccordionItem title='State'> empty </AccordionItem>
+            <AccordionItem title='State'>
+                <StateSettings ref='stateSettings'></StateSettings>
+            </AccordionItem>
             <AccordionItem title='Filter' :start_open=true>
                 <FilterSettings ref='filterSettings'></FilterSettings>
             </AccordionItem>
@@ -16,6 +18,7 @@
         <div id='footer'>
             <button v-on:click="pauseToggle()">{{pauseText}}</button>
             <button v-on:click="randomize()">Randomize</button>
+            <button v-on:click="reset()">Reset</button>
         </div>
     </div>
 </template>
@@ -25,6 +28,7 @@ import Utils from '../js/utils'
 import Controller from '../js/controller'
 
 import AccordionItem from './AccordionSettings/AccordionItem'
+import StateSettings from './AccordionSettings/StateSettings'
 import FilterSettings from './AccordionSettings/FilterSettings'
 import DisplaySettings from './AccordionSettings/DisplaySettings'
 
@@ -40,7 +44,8 @@ export default {
     mounted() {
         document.body.onkeyup = (e) => {
             if (document.activeElement.tagName !== "INPUT") {
-                switch (e.key) {
+                // console.log(e.key)
+                switch (e.key.toLowerCase()) {
                     case(' '): {
                         this.pauseToggle();
                         break;
@@ -50,7 +55,7 @@ export default {
                         break;
                     }
                     case('d'): {
-                        Controller.resetState();
+                        this.$refs.stateSettings.reset();
                         break;
                     }
                 }
@@ -59,6 +64,7 @@ export default {
     },
     components: {
         AccordionItem,
+        StateSettings,
         FilterSettings,
         DisplaySettings,
     },
@@ -70,6 +76,9 @@ export default {
         randomize() {
             this.$refs.filterSettings.randomize();
             this.$refs.displaySettings.randomize();
+        },
+        reset() {
+            this.$refs.stateSettings.reset();
         }
     }
 }

@@ -18,24 +18,37 @@ const Controller = {
         renderer.setKernel(this.filter);
         renderer.beginRender();
         this.renderer = renderer;
+
+        window.onresize = () => {
+			if (window.innerWidth === this.renderer.width && window.innerHeight === this.renderer.height)
+				return;
+			this.renderer.stopRender();
+			canvas.height = window.innerHeight;
+			canvas.width = window.innerWidth;
+			this.renderer.height = canvas.height;
+			this.renderer.width = canvas.width;
+			this.renderer.gl.viewport(0, 0, this.renderer.width, this.renderer.height);
+			this.renderer.setState(Utils.generateState(this.renderer.width, this.renderer.height, this.reset_type));
+            if (!this.paused)
+                this.renderer.beginRender();
+		};
     }, 
 
     setRenderer(r) {
         this.renderer = r;
     },
 
-    apply() {
+    apply(recompile=false) {
         if (!this.paused) {
             this.renderer.stopRender();
-            this._apply();
+            this._apply(recompile);
             this.renderer.beginRender();
         }
         else 
-            this._apply();
+            this._apply(recompile);
     },
 
-    _apply() {
-        let recompile = false;
+    _apply(recompile) {
         this.renderer.setKernel(this.filter);
         this.renderer.setColor(this.color);
         if (recompile)
@@ -46,6 +59,11 @@ const Controller = {
         this.reset_type = type;
         let state = Utils.generateState(this.renderer.width, this.renderer.height, this.reset_type);
         this.renderer.setState(state);
+    },
+
+    setCumulative(c) {
+        this.renderer.cumulative = c;
+        this.apply(true);
     },
 
     pauseToggle() {
