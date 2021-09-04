@@ -24,19 +24,20 @@ const Shaders = {
     void main(void){
 
         if(doStep){
-            float sum = texture2D(u_image, getCoords(texCoord, vec2(1.0, -1.0))).COLOR_CHANNEL * u_kernel[0]
-                + texture2D(u_image, getCoords(texCoord, vec2(0.0, -1.0))).COLOR_CHANNEL * u_kernel[1]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, -1.0))).COLOR_CHANNEL * u_kernel[2]
-                + texture2D(u_image, getCoords(texCoord, vec2(1.0, 0.0))).COLOR_CHANNEL * u_kernel[3]
-                + texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).COLOR_CHANNEL * u_kernel[4]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, 0.0))).COLOR_CHANNEL * u_kernel[5]
-                + texture2D(u_image, getCoords(texCoord, vec2(1.0, 1.0))).COLOR_CHANNEL * u_kernel[6]
-                + texture2D(u_image, getCoords(texCoord, vec2(0.0, 1.0))).COLOR_CHANNEL * u_kernel[7]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, 1.0))).COLOR_CHANNEL * u_kernel[8];
+            float sum = texture2D(u_image, getCoords(texCoord, vec2(1.0, -1.0))).a * u_kernel[0]
+                + texture2D(u_image, getCoords(texCoord, vec2(0.0, -1.0))).a * u_kernel[1]
+                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, -1.0))).a * u_kernel[2]
+                + texture2D(u_image, getCoords(texCoord, vec2(1.0, 0.0))).a * u_kernel[3]
+                + texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).a * u_kernel[4]
+                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, 0.0))).a * u_kernel[5]
+                + texture2D(u_image, getCoords(texCoord, vec2(1.0, 1.0))).a * u_kernel[6]
+                + texture2D(u_image, getCoords(texCoord, vec2(0.0, 1.0))).a * u_kernel[7]
+                + texture2D(u_image, getCoords(texCoord, vec2(-1.0, 1.0))).a * u_kernel[8];
             
             float x = activation(sum);
 
-			//x += texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).COLOR_CHANNEL; // cumulative display
+			CUMULATIVE_DISPLAY
+            
             gl_FragColor = vec4(x, x, x, x);
 
         } else {

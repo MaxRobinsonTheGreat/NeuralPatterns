@@ -1,27 +1,44 @@
 <template>
   <div id="canvasContainer">
-    <canvas id="renderCanvas" width="512" height="512"></canvas>
+    <canvas id="renderCanvas" 
+      width="512" 
+      height="512"
+      v-on:mouseup="mouseup"
+      v-on:mousemove="mousemove"
+      v-on:mousedown="mousedown"
+    ></canvas>
   </div>
 </template>
 
 <script>
 
-import Renderer from '../js/renderer.js';
-import Shaders from '../js/shaders.js';
-import Utils from '../js/utils.js';
+import controller from '../js/controller'
 
 export default {
   name: 'Renderer',
+  data() {
+    return {
+      mouse_down: false
+    } 
+  },
 
   mounted() {
     let canvas = document.getElementById("renderCanvas");
-    let renderer = new Renderer(canvas);
-    renderer.setColor(Utils.randomColor());
-    renderer.compileShaders(Shaders.vertexShader, Shaders.fragmentShader);
-    renderer.setState(Utils.generateState(renderer.width, renderer.height, 'random'));
-    renderer.setKernel(Utils.randomKernel());
-    renderer.beginRender();
-    this.renderer = renderer;
+    controller.initRenderer(canvas)
+  },
+  
+  methods: {
+    mouseup() {
+      this.mouse_down = false;
+    },
+    mousedown(event) {
+      this.mouse_down = true;
+      controller.renderer.poke(event.x, event.y);
+    },
+    mousemove(event) {
+      if (this.mouse_down)
+        controller.renderer.poke(event.x, event.y);
+    }
   },
 }
 </script>

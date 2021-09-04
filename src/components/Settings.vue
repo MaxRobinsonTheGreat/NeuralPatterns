@@ -1,14 +1,77 @@
 <template>
-  <div id="settings-panel">
-    hello
-  </div>
+    <div id="settings-panel">
+        <div id='header'>
+            min, load, save
+        </div>
+        <div id='accordion'>
+            <AccordionItem title='State'> empty </AccordionItem>
+            <AccordionItem title='Filter' :start_open=true>
+                <FilterSettings ref='filterSettings'></FilterSettings>
+            </AccordionItem>
+            <AccordionItem title='Activation'> empty </AccordionItem>
+            <AccordionItem title='Display'> 
+                <DisplaySettings ref='displaySettings'></DisplaySettings>
+            </AccordionItem>
+        </div>
+        <div id='footer'>
+            <button v-on:click="pauseToggle()">{{pauseText}}</button>
+            <button v-on:click="randomize()">Randomize</button>
+        </div>
+    </div>
 </template>
 
 <script>
+import Utils from '../js/utils'
+import Controller from '../js/controller'
+
+import AccordionItem from './AccordionSettings/AccordionItem'
+import FilterSettings from './AccordionSettings/FilterSettings'
+import DisplaySettings from './AccordionSettings/DisplaySettings'
+
 
 export default {
-  name: 'Settings',
-
+    name: 'Settings',
+    data() {
+        return {
+            filter: Utils.randomKernel(),
+            pauseText: 'Pause',
+        }
+    },
+    mounted() {
+        document.body.onkeyup = (e) => {
+            if (document.activeElement.tagName !== "INPUT") {
+                switch (e.key) {
+                    case(' '): {
+                        this.pauseToggle();
+                        break;
+                    }
+                    case('f'): {
+                        this.randomize();
+                        break;
+                    }
+                    case('d'): {
+                        Controller.resetState();
+                        break;
+                    }
+                }
+            }
+        }
+    },
+    components: {
+        AccordionItem,
+        FilterSettings,
+        DisplaySettings,
+    },
+    methods: {
+        pauseToggle() {
+            Controller.pauseToggle();
+            this.pauseText = Controller.paused ? 'Play' : 'Pause'
+        },
+        randomize() {
+            this.$refs.filterSettings.randomize();
+            this.$refs.displaySettings.randomize();
+        }
+    }
 }
 </script>
 
@@ -24,5 +87,6 @@ export default {
     background-color: #421f59;
     border: 1px solid #e7c4ff;
 }
+
 
 </style>

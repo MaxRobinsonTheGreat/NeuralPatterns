@@ -20,6 +20,7 @@ body{
 
 #canvasContainer{
 	position: absolute;
+
 	/* height: 100%; */
 
 }
@@ -28,7 +29,10 @@ body{
 	/* height: 1024px;
 	width: 2048px; */
 	/* height: 100%; */
-
+	top: 0px;
+	left: 0px;
+	position: absolute;
+	transform: scale(1);
 	background-color: #000000;
 
 	/* image-rendering: optimizeSpeed;              */
@@ -44,7 +48,7 @@ body{
 	
     float activation(float x) {
 		// input is in range [min(0, sum(negative values)), max(0, sum(positive values))]
-        //return x;
+        return x;
         //return sin(x - PI/2.);//sin(x) + cos(x) + sin(2.*x) + cos(2.*x) + sin(3.*x) + cos(3.*x) + sin(4.*x) + cos(5.*x);
 		//return abs(x)/2.;
         //return max(x,0.); // relu
@@ -70,8 +74,9 @@ body{
 		//return log(x+1.);
 
 		//return sin(1./x);
-		//return abs((exp(2.*x)-1.)/(exp(2.*x)+1.)); //tanh
-		return (-1./(pow(x, 2.)+1.)) + 1.; // similar tanh?
+		//return (exp(2.*x)-1.)/(exp(2.*x)+1.); //tanh
+		//return (-1./(pow(x, 2.)+1.)) + 1.; // similar tanh?
+		//return (-cos(1.*x)+1.)/2.;
 
         //return x;
         //return 1./pow(2., (pow(x-4.5, 2.))); // gaussian
@@ -543,68 +548,106 @@ function generateRandomColor() {
 	return color;
 }
 
-const fragmentShader = document.getElementById('fragment-shader-2d').text;
-const vertexShader = document.getElementById('vertex-shader-2d').text;
-const activationSource = document.getElementById('activation-source').text;
 
-let canvas = document.getElementById("renderCanvas");
 
-let state_type = 'center';
-let renderer = new Renderer(canvas);
-renderer.setColor(generateRandomColor());
-renderer.compileShaders(vertexShader, fragmentShader, activationSource);
-renderer.setState(renderer.generateState(state_type));
-renderer.setKernel(generateRandomKernel(-1, 1, false, false));
-// renderer.setKernel(
-// [1, 0, -1,
-//  2, 1, -2,
-//  1, 0, -1]
-// )
-renderer.beginRender();
+const main = () => {
+	const fragmentShader = document.getElementById('fragment-shader-2d').text;
+	const vertexShader = document.getElementById('vertex-shader-2d').text;
+	const activationSource = document.getElementById('activation-source').text;
 
-document.body.onkeyup = function(e){
-    if(e.keyCode == 32){
-		if (renderer.running)
+	let canvas = document.getElementById("renderCanvas");
+	canvas.style.setProperty('left', `0px`);
+	canvas.style.setProperty('right', `0px`);
+
+	let state_type = 'random';
+	let renderer = new Renderer(canvas);
+	renderer.setColor(generateRandomColor());
+	renderer.compileShaders(vertexShader, fragmentShader, activationSource);
+	renderer.setState(renderer.generateState(state_type));
+	renderer.setKernel(generateRandomKernel(-1, 1, false, false));
+	// renderer.setKernel(
+	// [1, 0, -1,
+	//  2, 1, -2,
+	//  1, 0, -1]
+	// )
+	renderer.beginRender();
+
+	document.body.onkeyup = function(e){
+		if(e.keyCode == 32){
+			if (renderer.running)
+				renderer.stopRender();
+			else
+				renderer.beginRender();
+		}
+		else if(e.keyCode == 65){
 			renderer.stopRender();
-		else
+			let need_recompile = renderer.setColor(generateRandomColor());
+			// renderer.setActivationSource(activationSource);
+			if (need_recompile)
+				renderer.recompile();
+			renderer.setKernel(generateRandomKernel(-1, 1, false, false));
 			renderer.beginRender();
-	}
-	else if(e.keyCode == 65){
-		renderer.stopRender();
-		let need_recompile = renderer.setColor(generateRandomColor());
-		// renderer.setActivationSource(activationSource);
-		if (need_recompile)
-			renderer.recompile();
-        renderer.setKernel(generateRandomKernel(-1, 1, true, false));
-		renderer.beginRender();
-	}
-	else if(e.keyCode == 87){
-		// renderer.stopRender();
-		renderer.setState(renderer.generateState(state_type))
-	}
-	else if(e.keyCode == 83){
-		
+		}
+		else if(e.keyCode == 87){
+			// renderer.stopRender();
+			renderer.setState(renderer.generateState(state_type))
+		}
+		else if(e.keyCode == 83){
+			
+		}
+
 	}
 
+	let down = false;
+	let scale = 1;
+	let x = 0;
+	let y = 0;
+	canvas.onmousedown = function(e){
+		down = true;
+		renderer.poke(e.offsetX, e.offsetY);
+	}
+
+	canvas.onmouseup = function(e){
+		down = false;
+	}
+
+	canvas.onmousemove = function(e){
+		x = e.offsetX;
+		y = e.offsetY;
+		if (down)
+			renderer.poke(e.offsetX, e.offsetY);
+	}
+
+	canvas.onwheel = (e) => {
+		e.preventDefault();
+
+		let sign = -Math.sign(e.deltaY);
+		scale = Math.max(1, scale+(sign*1));
+
+		canvas.style.transform = `scale(${scale})`;
+		console.log(canvas.style.left)
+		let cur_top = parseInt(canvas.style.top);
+		let cur_left = parseInt(canvas.style.left);
+		console.log(cur_left)
+		let delta_x=0, delta_y=0;
+		if (sign == 1) {
+			// If we're zooming in, zoom towards wherever the mouse is
+			delta_x = x;
+			delta_y = y;
+		}
+		else {
+			// If we're zooming out, zoom out towards the center
+			delta_x = -cur_left/scale;
+			delta_y = -cur_top/scale;
+		}
+		console.log(delta_x)
+		const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+		canvas.style.setProperty('left', `${clamp(cur_left+delta_x, 0, canvas.width)}px`);
+		canvas.style.setProperty('top', `${clamp(cur_top+delta_y, 0, canvas.height)}px`);
+	}
 }
 
-let down = false;
-canvas.onmousedown = function(e){
-	down = true;
-    renderer.poke(e.x, e.y);
-}
+main();
 
-canvas.onmouseup = function(e){
-	down = false;
-}
-
-canvas.onmousemove = function(e){
-	if (down)
-    	renderer.poke(e.x, e.y);
-}
-
-canvas.scroll = (e) => {
-	e.preventDetault();
-}
 
 </script>

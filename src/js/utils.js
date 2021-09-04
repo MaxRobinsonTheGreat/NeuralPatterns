@@ -82,7 +82,6 @@ const Utils = {
             kernel[6] = kernel[0];
             kernel[7] = kernel[1];
             kernel[8] = kernel[2];
-    
         }
         else if (v_symmetry){
             kernel[2] = kernel[0];
@@ -90,7 +89,13 @@ const Utils = {
             kernel[8] = kernel[6];
         }
         return kernel;
-    }
+    },
+
+    // structureKernel(kernel) {
+    //     let s_kernel = [];
+    //     while(kernel.length) s_kernel.push(kernel.splice(0,3));
+    //     return s_kernel;
+    // },
 }
 
 export default Utils

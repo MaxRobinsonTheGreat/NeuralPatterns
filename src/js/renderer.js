@@ -2,12 +2,10 @@ import Utils from './utils.js';
 
 class Renderer {
 	constructor(canvas) {
-        console.log(canvas)
 		canvas.height = window.innerHeight;
 		canvas.width = window.innerWidth;
 		this.height = canvas.height;
 		this.width = canvas.width;
-        this.start_state_type = 'center';
 		
 		this.gl = canvas.getContext("webgl");
 
@@ -20,17 +18,16 @@ class Renderer {
 			this.height = canvas.height;
 			this.width = canvas.width;
 			this.gl.viewport(0, 0, this.width, this.height);
-			this.setState(Utils.generateState(this.width, this.height, this.start_state_type));
+			this.setState(Utils.generateState(this.width, this.height, 'random'));
 			this.beginRender();
 		};
-		this.channel = 'r';
 		this.setBrush(5, 1);
 		this.activationSource = `
 		float activation(float x) {
 			return x;
 		}
 		`;
-		this.start_state_type = 'random';
+		this.cumulative = false;
 	}
 
 
@@ -126,8 +123,9 @@ class Renderer {
 	}
 
 	setFragValues(fragSource) {
-		fragSource = fragSource.replaceAll("COLOR_CHANNEL", this.channel);
 		fragSource = fragSource.replace("ACTIVATION_FUNCTION", this.activationSource);
+		let cumulativeSource = this.cumulative ? 'x += texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).a;' : '';
+		fragSource = fragSource.replace("CUMULATIVE_DISPLAY", cumulativeSource);
 		return fragSource;
 	}
 
@@ -189,26 +187,7 @@ class Renderer {
 	}
 
 	setColor(rgb) {
-		// requires one rgb value to be 1.0
-		// returns true if requires recompilation
 		this.colorMask = {r:rgb[0], g:rgb[1], b:rgb[2]};
-		
-		let channel = -1;
-		for (let i in rgb) {
-			if (rgb[i] === 1){
-				channel = i;
-				break;
-			}
-		}
-		if (channel === -1)
-			throw "RGB must have one full 1.0 value";
-
-		let channel_string = ['r', 'g', 'b'][channel];
-		if (this.channel === channel_string) {
-			return false; // no need to recompile
-		}
-		this.channel = channel_string;
-		return true; // need to recompile
 	}
 
 	setKernel(kernel) {
