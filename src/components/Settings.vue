@@ -10,7 +10,9 @@
             <AccordionItem title='Filter' :start_open=true>
                 <FilterSettings ref='filterSettings'></FilterSettings>
             </AccordionItem>
-            <AccordionItem title='Activation'> empty </AccordionItem>
+            <AccordionItem title='Activation'>
+                <ActivationSettings></ActivationSettings>    
+            </AccordionItem>
             <AccordionItem title='Display'> 
                 <DisplaySettings ref='displaySettings'></DisplaySettings>
             </AccordionItem>
@@ -31,10 +33,18 @@ import AccordionItem from './AccordionSettings/AccordionItem'
 import StateSettings from './AccordionSettings/StateSettings'
 import FilterSettings from './AccordionSettings/FilterSettings'
 import DisplaySettings from './AccordionSettings/DisplaySettings'
+import ActivationSettings from './AccordionSettings/ActivationSettings'
 
 
 export default {
     name: 'Settings',
+    components: {
+        AccordionItem,
+        StateSettings,
+        FilterSettings,
+        DisplaySettings,
+        ActivationSettings
+    },
     data() {
         return {
             filter: Utils.randomKernel(),
@@ -43,8 +53,8 @@ export default {
     },
     mounted() {
         document.body.onkeyup = (e) => {
-            if (document.activeElement.tagName !== "INPUT") {
-                // console.log(e.key)
+        let focused = document.activeElement.tagName
+        if (focused !== "INPUT" && focused !== "TEXTAREA") {
                 switch (e.key.toLowerCase()) {
                     case(' '): {
                         this.pauseToggle();
@@ -61,12 +71,6 @@ export default {
                 }
             }
         }
-    },
-    components: {
-        AccordionItem,
-        StateSettings,
-        FilterSettings,
-        DisplaySettings,
     },
     methods: {
         pauseToggle() {

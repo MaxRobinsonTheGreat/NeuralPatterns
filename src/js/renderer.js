@@ -1,3 +1,5 @@
+import Shaders from './shaders'
+
 class Renderer {
 	constructor(canvas) {
 		canvas.height = window.innerHeight;
@@ -8,12 +10,8 @@ class Renderer {
 		this.gl = canvas.getContext("webgl");
 
 		this.setBrush(5, 1);
-		this.activationSource = `
-		float activation(float x) {
-			return x;
-		}
-		`;
-		this.cumulative = false;
+		this.activationSource = '';
+		this.persistent = false;
 	}
 
 
@@ -110,8 +108,8 @@ class Renderer {
 
 	setFragValues(fragSource) {
 		fragSource = fragSource.replace("ACTIVATION_FUNCTION", this.activationSource);
-		let cumulativeSource = this.cumulative ? 'x += texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).a;' : '';
-		fragSource = fragSource.replace("CUMULATIVE_DISPLAY", cumulativeSource);
+		let persistentSource = this.persistent ? Shaders.persistentSource : '';
+		fragSource = fragSource.replace("PERSISTENT_DISPLAY", persistentSource);
 		return fragSource;
 	}
 

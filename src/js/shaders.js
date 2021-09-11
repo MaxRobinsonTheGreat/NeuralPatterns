@@ -24,6 +24,8 @@ const Shaders = {
     void main(void){
 
         if(doStep){
+            PERSISTENT_DISPLAY
+            
             float sum = texture2D(u_image, getCoords(texCoord, vec2(1.0, -1.0))).a * u_kernel[0]
                 + texture2D(u_image, getCoords(texCoord, vec2(0.0, -1.0))).a * u_kernel[1]
                 + texture2D(u_image, getCoords(texCoord, vec2(-1.0, -1.0))).a * u_kernel[2]
@@ -34,9 +36,8 @@ const Shaders = {
                 + texture2D(u_image, getCoords(texCoord, vec2(0.0, 1.0))).a * u_kernel[7]
                 + texture2D(u_image, getCoords(texCoord, vec2(-1.0, 1.0))).a * u_kernel[8];
             
-            float x = activation(sum);
 
-			CUMULATIVE_DISPLAY
+            float x = activation(sum);
             
             gl_FragColor = vec4(x, x, x, x);
 
@@ -59,6 +60,20 @@ const Shaders = {
         
         gl_Position = vec4(coordinates, 1.0, 1.0);
     
+    }
+    `,
+
+    persistentSource: `
+    float cur = texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).a;
+    if (cur != 0.) {
+        gl_FragColor = vec4(cur, cur, cur, cur);
+        return;
+	}
+    `,
+
+    defaultActivationSource: `
+    float activation(float x) {
+        return x;
     }
     `,
 }

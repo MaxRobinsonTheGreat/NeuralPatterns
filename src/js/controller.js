@@ -8,14 +8,20 @@ const Controller = {
         this.color = Utils.randomColor();
         this.paused = false;
         this.reset_type = 'random';
+        this.activationSource = `
+		float activation(float x) {
+			return x;
+		}
+		`;
     },
 
     initRenderer(canvas) {
         let renderer = new Renderer(canvas);
         renderer.setColor(this.color);
+        renderer.setActivationSource(this.activationSource);
+        renderer.setKernel(this.filter);
         renderer.compileShaders(Shaders.vertexShader, Shaders.fragmentShader);
         renderer.setState(Utils.generateState(renderer.width, renderer.height, 'random'));
-        renderer.setKernel(this.filter);
         renderer.beginRender();
         this.renderer = renderer;
 
@@ -51,6 +57,7 @@ const Controller = {
     _apply(recompile) {
         this.renderer.setKernel(this.filter);
         this.renderer.setColor(this.color);
+        this.renderer.activationSource = this.activationSource;
         if (recompile)
             this.renderer.recompile();
     },
@@ -61,8 +68,8 @@ const Controller = {
         this.renderer.setState(state);
     },
 
-    setCumulative(c) {
-        this.renderer.cumulative = c;
+    setPersistent(c) {
+        this.renderer.persistent = c;
         this.apply(true);
     },
 

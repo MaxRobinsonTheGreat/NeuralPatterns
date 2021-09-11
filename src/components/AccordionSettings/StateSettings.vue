@@ -6,7 +6,7 @@
             <button type='button' id='center' v-on:click="reset('center')">Center</button>
             <button type='button' id='center_top' v-on:click="reset('center_top')">Center Top</button>
         </div>
-        <input type='checkbox' v-model="cumulative" @change="setCumulative()">
+        <input type='checkbox' v-model="persistent" @change="setPersistent()">
     </div>
 </template>
 
@@ -19,7 +19,7 @@ export default {
     data() {
         return {
             active_button: Controller.reset_type,
-            cumulative: false
+            persistent: false
         }
     },
 
@@ -31,8 +31,8 @@ export default {
             Controller.resetState(this.active_button);
         },
 
-        setCumulative() {
-            Controller.setCumulative(this.cumulative)
+        setPersistent() {
+            Controller.setPersistent(this.persistent)
         }
     }
 }
