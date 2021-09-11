@@ -2,6 +2,7 @@
     <div id="display-settings">
         <input id='name' type='color' v-model="hexColor" @change="changeColor()">
         <button type='button' v-on:click="randomize()">Randomize Color</button>
+        <input type='checkbox' v-model="pixelated" @change="togglePixelated()">
     </div>
 </template>
 
@@ -13,6 +14,7 @@ export default {
     name: 'DisplaySettings',
     data() {
         return {
+            pixelated: false,
             rgbColor: [0, 0, 0],
             hexColor: '#000000'
         }
@@ -35,6 +37,11 @@ export default {
             Controller.apply();
         },
 
+        setColor(col) {
+            this.rgbColor = col;
+            this.hexColor = this.rgbToHex(col);
+        },
+
         hexToRgb(hex) {
             let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? [
@@ -49,6 +56,18 @@ export default {
             let g = Math.ceil(rgb[1]*255);
             let b = Math.ceil(rgb[2]*255);
             return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        },
+
+        togglePixelated() {
+            let c = Controller.renderer.canvas;
+            if (this.pixelated) {
+                c.style['image-rendering'] = 'pixelated';
+                c.style['-ms-interpolation-mode'] = 'nearest-neighbor';
+            }
+            else {
+                c.style['image-rendering'] = 'auto';
+                c.style['-ms-interpolation-mode'] = 'auto';  
+            }
         }
     }
 }

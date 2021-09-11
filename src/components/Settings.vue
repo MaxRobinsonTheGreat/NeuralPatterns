@@ -2,6 +2,9 @@
     <div id="settings-panel">
         <div id='header'>
             min, load, save
+            <a id="downloadEl" style="display: none;"></a>
+            <button v-on:click="save()">Save</button>
+            <input type="file" id="loadFile" @change="loadFile">
         </div>
         <div id='accordion'>
             <AccordionItem title='State'>
@@ -11,7 +14,7 @@
                 <FilterSettings ref='filterSettings'></FilterSettings>
             </AccordionItem>
             <AccordionItem title='Activation'>
-                <ActivationSettings></ActivationSettings>    
+                <ActivationSettings ref='activationSettings'></ActivationSettings>    
             </AccordionItem>
             <AccordionItem title='Display'> 
                 <DisplaySettings ref='displaySettings'></DisplaySettings>
@@ -83,7 +86,53 @@ export default {
         },
         reset() {
             this.$refs.stateSettings.reset();
+        },
+        save() {
+            let config = {};
+            console.log(Controller.filter)
+            config["reset_type"] = Controller.reset_type;
+            config["filter"] = Controller.filter;
+            config["activation"] = Controller.activationSource;
+            config["color"] = Controller.color;
+            config["persistent"] = Controller.renderer.persistent;
+
+            let data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config));
+            let downloadEl = document.getElementById('downloadEl');
+            downloadEl.setAttribute("href", data);
+            downloadEl.setAttribute("download", "config.json");
+            downloadEl.click();
+        },
+
+        loadFile(e) {
+            let files = e.srcElement.files;
+            if (!files.length) return;
+            let reader = new FileReader();
+            reader.onload = this.loadConfig;
+            reader.readAsText(files[0]);
+        },
+
+        loadConfig(e) {
+            let config = JSON.parse(e.target.result);
+            config.filter = this.toFloat32(config.filter);
+            console.log(config.persistent)
+
+            this.$refs.stateSettings.persistent = config.persistent;
+            this.$refs.stateSettings.active_button = config.active_button;
+            this.$refs.filterSettings.setFilter(config.filter);
+            this.$refs.activationSettings.code = config.activation;
+            this.$refs.displaySettings.setColor(config.color);
+
+            Controller.load(config);
+        },
+
+        toFloat32(obj) {
+            let arr = [];
+            for (let i in obj) {
+                arr[i] = obj[i];
+            }
+            return Float32Array.from(arr);
         }
+
     }
 }
 </script>
