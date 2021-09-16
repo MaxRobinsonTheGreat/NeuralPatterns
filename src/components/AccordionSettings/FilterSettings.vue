@@ -3,7 +3,14 @@
         <table>
             <tr v-for="(row, j) in filter" :key="row.id">
                 <td v-for="(val, i) in row.vals" :key="j+','+i">
-                    <input :value="val" @change="updateConfig($event, row, i)" type="number">
+                    <input 
+                        class="filter-val"
+                        :value="val"
+                        ref="filterInputs"
+                        @change="updateFilter($event, row, i)"  
+                        @focus="$event.target.select()"
+                        type="number"
+                    >
                 </td>
             </tr>
         </table>
@@ -12,8 +19,8 @@
             <button type='button' v-on:click="randomize()">Randomize Filter</button>
             <input v-model.number="min" type="number">
             <input v-model.number="max" type="number">
-            <input v-model="hor_sym" type="checkbox">
-            <input v-model="ver_sym" type="checkbox">
+            <input v-model="hor_sym" type="checkbox" @change="setSymmetry()">
+            <input v-model="ver_sym" type="checkbox" @change="setSymmetry()">
         </div>
         
     </div>
@@ -28,12 +35,8 @@ import Controller from '../../js/controller'
 export default {
     name: 'FilterSettings',
     data() {
-        let f = Controller.filter;
-        let filter =[{id:0, vals:[f[0], f[1], f[2]]},
-                     {id:1, vals:[f[3], f[4], f[5]]},
-                     {id:2, vals:[f[6], f[7], f[8]]}]
         return {
-            filter,
+            filter: {},
             min: -1,
             max: 1,
             hor_sym: false,
@@ -41,10 +44,18 @@ export default {
         }
     },
 
+    mounted() {
+        this.setFilter(Controller.filter);
+    },
+
     methods: {
-        updateConfig(event, row, i) {
+        updateFilter(event, row, i) {
+            let val = event.target.value;
+            val = val ? val : 0;
             let index = parseInt(row.id)*3 + i;
-            Controller.filter[index] = parseFloat(event.target.value);
+            Controller.filter[index] = parseFloat(val);
+            this.setFilter(Controller.filter)
+            Controller.apply();
         },
 
         randomize() {
@@ -54,11 +65,38 @@ export default {
             Controller.apply();
         }, 
 
+        setSymmetry() {
+            let f = Controller.filter;
+            let disabled = [];
+            if (this.hor_sym){
+                f = Utils.hSymmetry(f);
+                disabled.push(...[6, 7, 8]);
+            }
+            if (this.ver_sym) {
+                f = Utils.vSymmetry(f);
+                disabled.push(...[2, 5, 8]);
+            }
+            for (let input of this.$refs.filterInputs) {
+                input.disabled = false; // re enable all inputs
+            }
+            for (let i of disabled) {
+                this.$refs.filterInputs[i].disabled = true;
+            }
+            
+            Controller.kernel = f;
+            Controller.apply();
+
+            this.setFilter(Controller.filter);
+        },
+
         setFilter(f) {
-            Vue.set(this.filter, 0, {id:0, vals:[f[0], f[1], f[2]]});
-            Vue.set(this.filter, 1, {id:1, vals:[f[3], f[4], f[5]]});
-            Vue.set(this.filter, 2, {id:2, vals:[f[6], f[7], f[8]]});
-        }
+            const _ = (i) => { return parseFloat(f[i].toFixed(4)) }
+
+            Vue.set(this.filter, 0, {id:0, vals:[_(0), _(1), _(2)]});
+            Vue.set(this.filter, 1, {id:1, vals:[_(3), _(4), _(5)]});
+            Vue.set(this.filter, 2, {id:2, vals:[_(6), _(7), _(8)]});
+            return this.filter;
+        },
     }
 }
 </script>
@@ -68,6 +106,39 @@ export default {
 
 input {
     width: 50px;
+}
+
+.filter-val {
+    width: 50px;
+    color: white;
+    text-align: center;
+    background-color: #380658;
+    
+    border: 2px rgb(43, 32, 68) solid;
+    border-style: inset;
+
+    padding: 3px;
+    margin: 0px;
+}
+
+.filter-val:hover:enabled {
+    border: 2px rgb(255, 250, 181) solid;
+    /* border-style: ; */
+}
+
+.filter-val:disabled {
+    color: gray;
+}
+
+.filter-val::-webkit-outer-spin-button,
+.filter-val::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.filter-val[type=number] {
+  -moz-appearance: textfield;
 }
 
 </style>

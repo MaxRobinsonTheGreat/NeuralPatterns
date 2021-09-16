@@ -71,25 +71,26 @@ const Utils = {
             kernel[i] = Math.random()*range + min;
         }
     
-        if (h_symmetry && v_symmetry){
-            kernel[2] = kernel[0];
-            kernel[6] = kernel[0];
-            kernel[8] = kernel[0];
-            kernel[7] = kernel[1];
-            kernel[5] = kernel[3];
-        }
-        else if (h_symmetry){
-            kernel[6] = kernel[0];
-            kernel[7] = kernel[1];
-            kernel[8] = kernel[2];
-        }
-        else if (v_symmetry){
-            kernel[2] = kernel[0];
-            kernel[5] = kernel[3];
-            kernel[8] = kernel[6];
-        }
+        if (h_symmetry)
+			kernel = this.hSymmetry(kernel);
+        if (v_symmetry)
+            kernel = this.vSymmetry(kernel);
         return kernel;
     },
+
+	hSymmetry(k) {
+		k[6] = k[0];
+		k[7] = k[1];
+		k[8] = k[2];
+		return k;
+	},
+
+	vSymmetry(k) {
+		k[2] = k[0];
+		k[5] = k[3];
+		k[8] = k[6];
+		return k;
+	}
 
     // structureKernel(kernel) {
     //     let s_kernel = [];

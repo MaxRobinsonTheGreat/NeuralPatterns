@@ -56,7 +56,7 @@ export default {
     },
     mounted() {
         document.body.onkeyup = (e) => {
-        let focused = document.activeElement.tagName
+        let focused = document.activeElement.tagName;
         if (focused !== "INPUT" && focused !== "TEXTAREA") {
                 switch (e.key.toLowerCase()) {
                     case(' '): {
