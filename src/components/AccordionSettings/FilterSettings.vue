@@ -54,6 +54,7 @@ export default {
             val = val ? val : 0;
             let index = parseInt(row.id)*3 + i;
             Controller.filter[index] = parseFloat(val);
+            this.enforceSymmetry();
             this.setFilter(Controller.filter)
             Controller.apply();
         },
@@ -87,6 +88,17 @@ export default {
             Controller.apply();
 
             this.setFilter(Controller.filter);
+        },
+
+        enforceSymmetry() {
+            let f = Controller.filter;
+            if (this.hor_sym){
+                f = Utils.hSymmetry(f);
+            }
+            if (this.ver_sym) {
+                f = Utils.vSymmetry(f);
+            }
+            Controller.kernel = f;
         },
 
         setFilter(f) {
