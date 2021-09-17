@@ -120,6 +120,10 @@ input {
     width: 50px;
 }
 
+table {
+    margin: auto;
+}
+
 .filter-val {
     width: 50px;
     color: white;
