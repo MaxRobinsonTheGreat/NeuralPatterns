@@ -1,30 +1,40 @@
 <template>
-    <div id="settings-panel">
-        <div id='header'>
-            min, load, save
-            <a id="downloadEl" style="display: none;"></a>
-            <button v-on:click="save()">Save</button>
-            <input type="file" id="loadFile" @change="loadFile">
+    <div>
+        <div id="settings-panel" v-show="panel_open">
+            <div id='header'>
+                <!-- <a id="downloadEl" style="display: none;"></a> -->
+                <button id="min-btn" v-on:click="setOpen(false)"><i class="fa fa-minus"></i></button>
+                <button id="save-btn" v-on:click="save()">Save</button>
+                <button id="load-btn" v-on:click="save()">Load</button>
+                <!-- <input id="loadFile" type="file" @change="loadFile"> -->
+            </div>
+            <div id='accordion'>
+                <AccordionItem title='State'>
+                    <StateSettings ref='stateSettings'></StateSettings>
+                </AccordionItem>
+                <AccordionItem title='Filter' :start_open=true>
+                    <FilterSettings ref='filterSettings'></FilterSettings>
+                </AccordionItem>
+                <AccordionItem title='Activation'>
+                    <ActivationSettings ref='activationSettings'></ActivationSettings>    
+                </AccordionItem>
+                <AccordionItem title='Display'> 
+                    <DisplaySettings ref='displaySettings'></DisplaySettings>
+                </AccordionItem>
+            </div>
+            <div id='footer'>
+                <button id='pause-btn' v-on:click="pauseToggle()">
+                    <i class="fa fa-play" v-if=is_playing></i>
+                    <i class="fa fa-pause" v-else></i>
+                </button>
+                <button id='randomize-btn' v-on:click="randomize()">Randomize</button>
+                <button id='reset-btn' v-on:click="reset()">Reset State</button>
+            </div>
         </div>
-        <div id='accordion'>
-            <AccordionItem title='State'>
-                <StateSettings ref='stateSettings'></StateSettings>
-            </AccordionItem>
-            <AccordionItem title='Filter' :start_open=true>
-                <FilterSettings ref='filterSettings'></FilterSettings>
-            </AccordionItem>
-            <AccordionItem title='Activation'>
-                <ActivationSettings ref='activationSettings'></ActivationSettings>    
-            </AccordionItem>
-            <AccordionItem title='Display'> 
-                <DisplaySettings ref='displaySettings'></DisplaySettings>
-            </AccordionItem>
-        </div>
-        <div id='footer'>
-            <button v-on:click="pauseToggle()">{{pauseText}}</button>
-            <button v-on:click="randomize()">Randomize</button>
-            <button v-on:click="reset()">Reset</button>
-        </div>
+        <button id='settings-btn' v-on:click="setOpen(true)" v-show="!panel_open">
+            <i class="fa fa-gear"></i>
+        </button>
+
     </div>
 </template>
 
@@ -51,7 +61,8 @@ export default {
     data() {
         return {
             filter: Utils.randomKernel(),
-            pauseText: 'Pause',
+            is_playing: true,
+            panel_open: true,
         }
     },
     mounted() {
@@ -78,7 +89,7 @@ export default {
     methods: {
         pauseToggle() {
             Controller.pauseToggle();
-            this.pauseText = Controller.paused ? 'Play' : 'Pause'
+            this.is_playing = Controller.paused;
         },
         randomize() {
             this.$refs.filterSettings.randomize();
@@ -101,6 +112,9 @@ export default {
             downloadEl.setAttribute("href", data);
             downloadEl.setAttribute("download", "config.json");
             downloadEl.click();
+        },
+        setOpen(open) {
+            this.panel_open=open;
         },
 
         loadFile(e) {
@@ -125,12 +139,12 @@ export default {
             Controller.load(config);
         },
 
-        toFloat32(obj) {
-            let arr = [];
-            for (let i in obj) {
-                arr[i] = obj[i];
+        toFloat32(arr) {
+            let farr = [];
+            for (let i in arr) {
+                farr[i] = arr[i];
             }
-            return Float32Array.from(arr);
+            return Float32Array.from(farr);
         }
 
     }
@@ -138,17 +152,74 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style>
 #settings-panel {
-    position: fixed;
+    position: absolute;
+    /* display: inline-block; */
+    /* min-width: 300px; */
     width: 300px;
-    height: auto;
+    /* height: auto; */
     margin: 10px;
 
     color: white;
     background-color: #421f59;
-    border: 1px solid #e7c4ff;
+    /* max-height: 95vh; */
+    /* border: 1px solid #e7c4ff; */
+
+    border: 2px white solid;
+
+    /* border-style: outset; */
 }
 
+#header {
+    display: block;
+    height: 30px;
+    border-bottom: 1px solid rgb(126, 126, 126);
+    /* position:relative; */
+    /* width: 100%; */
+}
+
+#min-btn {
+    float: left;
+    /* font-family: "Times New Roman", Times, sans-serif;
+    color: rgb(228, 200, 78); */
+}
+
+#save-btn, #load-btn {
+    float: right;
+}
+
+#loadFile {
+    /* float: right; */
+}
+
+#accordion {
+    /* overflow: auto; */ 
+    /* position: relative; */
+    max-height: 85vh;
+    /* height: 100px; */
+    margin-left: 5px;
+    margin-right: 5px;
+    overflow-y: auto;
+}
+
+#footer {
+    border-top: 1px solid rgb(126, 126, 126);
+}
+
+#pause-btn {
+    float: left;
+}
+
+#randomize-btn, #reset-btn {
+    float: right;
+}
+
+#settings-btn {
+    position: fixed;
+    left: 0;
+    margin: 10px;
+}
 
 </style>
+

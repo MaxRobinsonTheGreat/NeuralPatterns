@@ -130,8 +130,7 @@ table {
     text-align: center;
     background-color: #380658;
     
-    border: 2px rgb(43, 32, 68) solid;
-    border-style: inset;
+    border: 2px rgb(43, 32, 68) inset;
 
     padding: 3px;
     margin: 0px;
@@ -139,7 +138,6 @@ table {
 
 .filter-val:hover:enabled {
     border: 2px rgb(255, 250, 181) solid;
-    /* border-style: ; */
 }
 
 .filter-val:disabled {
