@@ -186,13 +186,14 @@ class Renderer {
 		this.kernel = kernel;
 	}
 
-	setBrush(size, value) {
+	setBrush(size) {
 		this.brush_size = size;
 		let arr_size = size*size*4;
-		this.brush_arr = new Uint8Array(arr_size);
-		this.brush_value = value;
+		this.brush_arr_1 = new Uint8Array(arr_size);
+		this.brush_arr_0 = new Uint8Array(arr_size);
 		for (let i=0; i<arr_size; i++) {
-			this.brush_arr[i] = value*255;
+			this.brush_arr_1[i] = 255;
+			this.brush_arr_0[i] = 0;
 		}
 	}
 
@@ -247,15 +248,18 @@ class Renderer {
 		gl.drawArrays(gl.TRIANGLES, 0, this.size);
 	}
 
-	poke(x, y) {
+	poke(x, y, fill_ones=true) {
 		let gl = this.gl;
 		y = this.height - y; // reverse y
 
 		x = x - Math.floor(this.brush_size/2); // center brush
 		y = y - Math.floor(this.brush_size/2);
+
+		let brush_arr = fill_ones ? this.brush_arr_1 : this.brush_arr_0;
+
 		gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, this.brush_size, this.brush_size,
                      gl.RGBA, gl.UNSIGNED_BYTE,
-                     this.brush_arr);
+                     brush_arr);
 		this.updateDisplay();
 	}
 }

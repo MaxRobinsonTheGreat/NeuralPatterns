@@ -17,10 +17,10 @@ const Controller = {
 
     initRenderer(canvas) {
         let renderer = new Renderer(canvas);
-        renderer.setColor(this.color);
         renderer.setActivationSource(this.activationSource);
         renderer.setKernel(this.filter);
         renderer.compileShaders(Shaders.vertexShader, Shaders.fragmentShader);
+        renderer.setColor(this.color);
         renderer.setState(Utils.generateState(renderer.width, renderer.height, 'random'));
         renderer.beginRender();
         this.renderer = renderer;

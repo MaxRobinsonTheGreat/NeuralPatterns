@@ -24,8 +24,8 @@
             </div>
             <div id='footer'>
                 <button id='pause-btn' v-on:click="pauseToggle()">
-                    <i class="fa fa-play" v-if=is_playing></i>
-                    <i class="fa fa-pause" v-else></i>
+                    <i class="fa fa-pause" v-if=is_playing></i>
+                    <i class="fa fa-play" v-else></i>
                 </button>
                 <button id='randomize-btn' v-on:click="randomize()">Randomize</button>
                 <button id='reset-btn' v-on:click="reset()">Reset State</button>
@@ -91,7 +91,7 @@ export default {
     methods: {
         pauseToggle() {
             Controller.pauseToggle();
-            this.is_playing = Controller.paused;
+            this.is_playing = !Controller.paused;
         },
         randomize() {
             this.$refs.filterSettings.randomize();

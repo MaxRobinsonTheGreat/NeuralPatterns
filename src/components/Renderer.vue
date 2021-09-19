@@ -6,6 +6,7 @@
       v-on:mouseup="mouseup"
       v-on:mousemove="mousemove"
       v-on:mousedown="mousedown"
+      oncontextmenu="return false;"
     ></canvas>
   </div>
 </template>
@@ -18,7 +19,8 @@ export default {
   name: 'Renderer',
   data() {
     return {
-      mouse_down: false
+      mouse_down: false,
+      left_click: true
     } 
   },
 
@@ -33,11 +35,12 @@ export default {
     },
     mousedown(event) {
       this.mouse_down = true;
-      controller.renderer.poke(event.x, event.y);
+      this.left_click = event.button === 0;
+      controller.renderer.poke(event.x, event.y, this.left_click);
     },
-    mousemove(event) {
+    mousemove(event) { 
       if (this.mouse_down)
-        controller.renderer.poke(event.x, event.y);
+        controller.renderer.poke(event.x, event.y, this.left_click);
     }
   },
 }
