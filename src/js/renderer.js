@@ -164,6 +164,8 @@ class Renderer {
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.txb, 0);
 
 		gl.bindTexture(gl.TEXTURE_2D, this.stateTexture);
+		
+		this.updateDisplay();
 	}
 
 	setActivationSource(activationSource) {
@@ -173,6 +175,11 @@ class Renderer {
 
 	setColor(rgb) {
 		this.colorMask = {r:rgb[0], g:rgb[1], b:rgb[2]};
+		if (this.gl) {
+			this.gl.uniform4f(this.colorMaskAttr, this.colorMask.r, this.colorMask.g, this.colorMask.b, 1.0);
+			this.updateDisplay();
+		}
+		
 	}
 
 	setKernel(kernel) {
@@ -201,7 +208,6 @@ class Renderer {
 		gl.uniform4f(this.colorMaskAttr, this.colorMask.r, this.colorMask.g, this.colorMask.b, 1.0);
 
 		this.render();
-		
 	}
 
 	stopRender(){
@@ -212,35 +218,33 @@ class Renderer {
 
 	render(){
 		let gl = this.gl;
+		gl.uniform1f(this.doStepAttr, true);
 
-		{
-			// first apply the update rule
-			gl.uniform1f(this.doStepAttr, true);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbb);
+		gl.drawArrays(gl.TRIANGLES, 0, this.size);
+		gl.bindTexture(gl.TEXTURE_2D, this.txb); // use texture b
 
-			gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbb);
-			gl.drawArrays(gl.TRIANGLES, 0, this.size);
-			gl.bindTexture(gl.TEXTURE_2D, this.txb); // use texture b
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.drawArrays(gl.TRIANGLES, 0, this.size);
 
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.drawArrays(gl.TRIANGLES, 0, this.size);
+		gl.uniform1f(this.doStepAttr, false);
 
-			gl.uniform1f(this.doStepAttr, false);
-		}
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.fba);
+		gl.drawArrays(gl.TRIANGLES, 0, this.size);
+		gl.bindTexture(gl.TEXTURE_2D, this.txa);
 
-		{
-			// then apply the color masking
-			gl.bindFramebuffer(gl.FRAMEBUFFER, this.fba);
-			gl.drawArrays(gl.TRIANGLES, 0, this.size);
-			gl.bindTexture(gl.TEXTURE_2D, this.txa); // use texture a
-			
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.drawArrays(gl.TRIANGLES, 0, this.size);
-		}
+		this.updateDisplay();
 
 		if(this.running){
 			this.updaterequest = window.requestAnimationFrame(()=>{this.render();});
 			// setTimeout(()=>{this.render();}, 0); // set render speed
 		}
+	}
+
+	updateDisplay() {
+		let gl = this.gl;
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.drawArrays(gl.TRIANGLES, 0, this.size);
 	}
 
 	poke(x, y) {
@@ -252,6 +256,7 @@ class Renderer {
 		gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, this.brush_size, this.brush_size,
                      gl.RGBA, gl.UNSIGNED_BYTE,
                      this.brush_arr);
+		this.updateDisplay();
 	}
 }
 

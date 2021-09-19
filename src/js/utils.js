@@ -3,16 +3,23 @@ const Utils = {
 		let cells = new Uint8Array(height * width * 4);
 		switch(option) {
 			case 'random': {
-				for(let i = 0; i < cells.length; i++){
-					cells[i] = Math.floor(255 * Math.random())
+				for(let i = 0; i < height * width*4; i+=4){
+					let r =  Math.floor(255 * Math.random());
+					cells[i] = r;
+					cells[i+1] = r;
+					cells[i+2] = r;
+					cells[i+3] = r;
 				}
-				cells[height * width * 2 + width*2] = 255;
 				break;
             }
 
 			case 'random_bool': {
-				for(let i = 0; i < cells.length; i++){
-					cells[i] = 255 * Math.floor(Math.random()*2);
+				for(let i = 0; i < height * width*4; i+=4){
+					let r =  255 * Math.floor(Math.random()*2);
+					cells[i] = r;
+					cells[i+1] = r;
+					cells[i+2] = r;
+					cells[i+3] = r;
 				}
 				break;
             }

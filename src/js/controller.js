@@ -60,8 +60,9 @@ const Controller = {
             this._apply(recompile);
             this.renderer.beginRender();
         }
-        else 
+        else {
             this._apply(recompile);
+        }
     },
 
     _apply(recompile) {

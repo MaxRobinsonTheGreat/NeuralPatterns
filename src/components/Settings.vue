@@ -72,6 +72,8 @@ export default {
                 switch (e.key.toLowerCase()) {
                     case(' '): {
                         this.pauseToggle();
+                        if (focused ==="BUTTON") 
+                            e.preventDefault();
                         break;
                     }
                     case('f'): {
@@ -218,7 +220,13 @@ export default {
 #settings-btn {
     position: fixed;
     left: 0;
+    width: 30px;
     margin: 10px;
+}
+
+#min-btn, #pause-btn {
+    border-style: inset;
+    width: 30px;
 }
 
 </style>
