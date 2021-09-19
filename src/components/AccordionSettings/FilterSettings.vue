@@ -124,7 +124,7 @@ table {
     margin: auto;
 }
 
-.filter-val {
+input {
     width: 50px;
     color: white;
     text-align: center;
@@ -136,7 +136,7 @@ table {
     margin: 0px;
 }
 
-.filter-val:hover:enabled {
+input:hover:enabled {
     border: 2px rgb(255, 250, 181) solid;
 }
 

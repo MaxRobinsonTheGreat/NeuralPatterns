@@ -4,7 +4,8 @@
             <button type='button' id='random' v-on:click="reset('random')">Random</button>
             <button type='button' id='random_bool' v-on:click="reset('random_bool')">Random Boolean</button><br>
             <button type='button' id='center' v-on:click="reset('center')">Center</button>
-            <button type='button' id='center_top' v-on:click="reset('center_top')">Center Top</button>
+            <button type='button' id='center_top' v-on:click="reset('center_top')">Center Top</button><br>
+            <button type='button' id='empty' v-on:click="reset('empty')">Clear</button>
         </div>
         <input type='checkbox' v-model="persistent" @change="setPersistent()">
     </div>
