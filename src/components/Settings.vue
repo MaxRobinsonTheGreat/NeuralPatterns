@@ -178,7 +178,7 @@ export default {
 
 #header {
     display: block;
-    height: 30px;
+    height: 40px;
     border-bottom: 1px solid rgb(126, 126, 126);
     /* position:relative; */
     /* width: 100%; */
@@ -187,7 +187,6 @@ export default {
 #min-btn, #pause-btn {
     float: left;
     border-style: solid;
-    width: 30px;
 }
 
 #save-btn, #load-btn {
@@ -212,15 +211,24 @@ export default {
     border-top: 1px solid rgb(126, 126, 126);
 }
 
-#randomize-btn, #reset-btn {
+#randomize-btn, #reset-btn, #save-btn, #load-btn {
     float: right;
+}
+
+#min-btn, #pause-btn {
+    width: 40px;
+}
+
+#min-btn, #pause-btn, #settings-btn, #randomize-btn, #reset-btn {
+    height: 40px;
+    font-size: 15px;
 }
 
 #settings-btn {
     position: fixed;
     z-index: 1;
     left: 0;
-    width: 30px;
+    width: 40px;
     margin: 10px;
 }
 
