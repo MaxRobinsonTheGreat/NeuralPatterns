@@ -60,9 +60,6 @@ button:active {
 }
 
 label {
-  position: relative;
-  float: left;
-  /* margin-left: 10px; */
   font-size: 14px;
 }
 

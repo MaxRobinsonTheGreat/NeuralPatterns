@@ -14,16 +14,18 @@
                 </td>
             </tr>
         </table>
+        <button type='button' v-on:click="randomize()">Randomize Filter</button>
 
-        <div id="rand-form">
-            <button type='button' v-on:click="randomize()">Randomize Filter</button>
-            <input v-model.number="min" type="number">
-            <input v-model.number="max" type="number">
+        <div id="options">
+            <label for="range">Random Range: </label>
+            <input v-model.number="min" type="number" id="range">
+            <input v-model.number="max" type="number"><br>
 
-            <label for="hor_sym">Horizontal Symmetry</label>
             <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry()">
-            <label for="ver_sym">Vertical Symmetry</label>
+            <label for="hor_sym">Horizontal Symmetry</label>
+            <br>
             <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry()">
+            <label for="ver_sym">Vertical Symmetry</label>
         </div>
         
     </div>
@@ -51,6 +53,15 @@ export default {
         this.setFilter(Controller.filter);
     },
 
+    watch: {
+        min(val) {
+            this.min = Math.min(val, this.max);
+        },
+        max(val) {
+            this.max = Math.max(val, this.min);
+        }
+    },
+
     methods: {
         updateFilter(event, row, i) {
             let val = event.target.value;
@@ -67,7 +78,7 @@ export default {
             this.setFilter(filter);
             Controller.filter = filter;
             Controller.apply();
-        }, 
+        },
 
         setSymmetry() {
             let f = Controller.filter;
@@ -105,11 +116,12 @@ export default {
         },
 
         setFilter(f) {
-            const _ = (i) => { return parseFloat(f[i].toFixed(4)) }
+            // c limits floats to 4 decimals without trailing zeros
+            const c = (i) => { return parseFloat(f[i].toFixed(4)) }
 
-            Vue.set(this.filter, 0, {id:0, vals:[_(0), _(1), _(2)]});
-            Vue.set(this.filter, 1, {id:1, vals:[_(3), _(4), _(5)]});
-            Vue.set(this.filter, 2, {id:2, vals:[_(6), _(7), _(8)]});
+            Vue.set(this.filter, 0, {id:0, vals:[c(0), c(1), c(2)]});
+            Vue.set(this.filter, 1, {id:1, vals:[c(3), c(4), c(5)]});
+            Vue.set(this.filter, 2, {id:2, vals:[c(6), c(7), c(8)]});
             return this.filter;
         },
     }
@@ -158,9 +170,14 @@ input:hover:enabled {
   -moz-appearance: textfield;
 }
 
-#ver_sym, #hor_sym {
-    /* float: left; */
-    /* height: 100px; */
+#options {
+    text-align: left;
+    margin-left: 10px;
+}
+
+#range {
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 </style>
