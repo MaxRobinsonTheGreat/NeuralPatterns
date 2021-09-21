@@ -1,9 +1,15 @@
 <template>
     <div id="display-settings">
-        <input id='name' type='color' v-model="hexColor" @change="changeColor()">
+        <label for='color'>Color: </label>
+        <input id='color' type='color' v-model="hexColor" @change="changeColor()">
+
         <button type='button' v-on:click="randomize()">Randomize Color</button>
-        <input type='checkbox' v-model="pixelated" @change="togglePixelated()">
-        <input type='checkbox' v-model="persistent" @change="setPersistent()">
+
+        <label for='pixelated'>Pixelated: </label>
+        <input id='pixelated' type='checkbox' v-model="pixelated" @change="togglePixelated()"><br>
+
+        <label for='persistant'>Persistant Pixels: </label>
+        <input id='persistant' type='checkbox' v-model="persistent" @change="setPersistent()"><br>
     </div>
 </template>
 
@@ -70,6 +76,7 @@ export default {
                 c.style['image-rendering'] = 'auto';
                 c.style['-ms-interpolation-mode'] = 'auto';  
             }
+            Controller.renderer.updateDisplay();
         },
         
         setPersistent() {
@@ -81,6 +88,14 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+#display-settings {
+    margin: 10px;
+    text-align: left;
+}
 
+#color {
+    background-color: rgb(61, 21, 112);
+    border: 1px black solid;
+}
 
 </style>

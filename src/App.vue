@@ -60,7 +60,7 @@ button:active {
 }
 
 label {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .noselect {
