@@ -9,7 +9,7 @@
                 <!-- <input id="loadFile" type="file" @change="loadFile"> -->
             </div>
             <div id='accordion'>
-                <AccordionItem title='State'>
+                <AccordionItem title='Reset Options'>
                     <StateSettings ref='stateSettings'></StateSettings>
                 </AccordionItem>
                 <AccordionItem title='Filter' :start_open=true>
@@ -155,11 +155,14 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
+
 #settings-panel {
-    position: absolute;
+    position: fixed;
+    z-index: 1;
     /* display: inline-block; */
     /* min-width: 300px; */
-    width: 300px;
+    width: 100%;
+    max-width: 300px;
     /* height: auto; */
     margin: 10px;
 
@@ -181,10 +184,10 @@ export default {
     /* width: 100%; */
 }
 
-#min-btn {
+#min-btn, #pause-btn {
     float: left;
-    /* font-family: "Times New Roman", Times, sans-serif;
-    color: rgb(228, 200, 78); */
+    border-style: solid;
+    width: 30px;
 }
 
 #save-btn, #load-btn {
@@ -209,24 +212,16 @@ export default {
     border-top: 1px solid rgb(126, 126, 126);
 }
 
-#pause-btn {
-    float: left;
-}
-
 #randomize-btn, #reset-btn {
     float: right;
 }
 
 #settings-btn {
     position: fixed;
+    z-index: 1;
     left: 0;
     width: 30px;
     margin: 10px;
-}
-
-#min-btn, #pause-btn {
-    border-style: inset;
-    width: 30px;
 }
 
 </style>

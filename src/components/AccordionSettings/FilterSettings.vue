@@ -19,8 +19,11 @@
             <button type='button' v-on:click="randomize()">Randomize Filter</button>
             <input v-model.number="min" type="number">
             <input v-model.number="max" type="number">
-            <input v-model="hor_sym" type="checkbox" @change="setSymmetry()">
-            <input v-model="ver_sym" type="checkbox" @change="setSymmetry()">
+
+            <label for="hor_sym">Horizontal Symmetry</label>
+            <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry()">
+            <label for="ver_sym">Vertical Symmetry</label>
+            <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry()">
         </div>
         
     </div>
@@ -153,6 +156,11 @@ input:hover:enabled {
 /* Firefox */
 .filter-val[type=number] {
   -moz-appearance: textfield;
+}
+
+#ver_sym, #hor_sym {
+    /* float: left; */
+    /* height: 100px; */
 }
 
 </style>

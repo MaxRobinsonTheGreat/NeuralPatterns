@@ -47,21 +47,33 @@ button {
     padding: 4px;
     background-color: #3c0058;
     color: white;
-    /* margin: 2px; */
     border: 2px rgb(100, 64, 134) outset;
 }
 
 button:hover {
     background-color: #53445a;
-    /* border: 2px rgb(56, 53, 33) outset; */
-
-    /* border: 2px rgb(255, 250, 181) solid; */
 }
 
 button:active {
     background-color: #3c0058;
     border-style: inset;
+}
 
+label {
+  position: relative;
+  float: left;
+  /* margin-left: 10px; */
+  font-size: 14px;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
 }
 
 @import 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';

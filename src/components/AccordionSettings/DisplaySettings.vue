@@ -3,6 +3,7 @@
         <input id='name' type='color' v-model="hexColor" @change="changeColor()">
         <button type='button' v-on:click="randomize()">Randomize Color</button>
         <input type='checkbox' v-model="pixelated" @change="togglePixelated()">
+        <input type='checkbox' v-model="persistent" @change="setPersistent()">
     </div>
 </template>
 
@@ -14,9 +15,10 @@ export default {
     name: 'DisplaySettings',
     data() {
         return {
-            pixelated: false,
             rgbColor: [0, 0, 0],
-            hexColor: '#000000'
+            hexColor: '#000000',
+            pixelated: false,
+            persistent: false,
         }
     },
 
@@ -68,6 +70,10 @@ export default {
                 c.style['image-rendering'] = 'auto';
                 c.style['-ms-interpolation-mode'] = 'auto';  
             }
+        },
+        
+        setPersistent() {
+            Controller.setPersistent(this.persistent)
         }
     }
 }
