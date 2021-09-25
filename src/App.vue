@@ -19,6 +19,11 @@ export default {
 </script>
 
 <style>
+
+@import './assets/css-vars.css';
+@import 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
+@import './assets/glsl-theme.css';
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -45,17 +50,17 @@ body{
 button {
     font-size: 14px;
     padding: 4px;
-    background-color: #3c0058;
-    color: white;
+    background-color: var(--btn-bg);
+    color: var(--panel-border);
     border: 2px rgb(100, 64, 134) outset;
 }
 
 button:hover {
-    background-color: #53445a;
+    background-color: var(--btn-hover);
 }
 
 button:active {
-    background-color: #3c0058;
+    background-color: var(--btn-active);
     border-style: inset;
 }
 
@@ -73,6 +78,9 @@ label {
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
-@import 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
+i {
+  width: 100%;
+}
+
 </style>
 

@@ -8,11 +8,7 @@ const Controller = {
         this.color = Utils.randomColor();
         this.paused = false;
         this.reset_type = 'random';
-        this.activationSource = `
-		float activation(float x) {
-			return x;
-		}
-		`;
+        this.activationSource = Shaders.defaultActivationSource;
     },
 
     initRenderer(canvas) {

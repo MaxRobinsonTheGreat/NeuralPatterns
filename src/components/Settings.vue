@@ -167,7 +167,7 @@ export default {
     margin: 10px;
 
     color: white;
-    background-color: #421f59;
+    background-color: var(--panel-bg);
     /* max-height: 95vh; */
     /* border: 1px solid #e7c4ff; */
 

@@ -143,16 +143,16 @@ input {
     width: 50px;
     color: white;
     text-align: center;
-    background-color: #380658;
+    background-color: var(--in-bg);
     
-    border: 2px rgb(43, 32, 68) inset;
+    border: 2px var(--in-border) inset;
 
     padding: 3px;
     margin: 0px;
 }
 
 input:hover:enabled {
-    border: 2px rgb(255, 250, 181) solid;
+    border: 2px var(--in-border-hover) solid;
 }
 
 .filter-val:disabled {

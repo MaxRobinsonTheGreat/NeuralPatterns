@@ -37,7 +37,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .accordion-item {
-    border: 1px solid white;
+    border: 1px solid var(--panel-border);
     margin: 5px;
     position: relative
 }
@@ -47,7 +47,7 @@ export default {
 }
 
 #title-box {
-    background-color: #3c0058;
+    background-color: var(--btn-bg);
     text-align: left;
     padding: 5px;
     margin: 0px;
@@ -55,11 +55,11 @@ export default {
 
 #title-box:hover {
     cursor: pointer;
-    background-color: #5b4764;
+    background-color: var(--btn-hover);
 }
 
 #title-box:active {
-    background-color: #3c0058;
+    background-color: var(--btn-active);
 }
 
 #content {

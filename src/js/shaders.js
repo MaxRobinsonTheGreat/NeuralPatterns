@@ -71,11 +71,8 @@ const Shaders = {
 	}
     `,
 
-    defaultActivationSource: `
-    float activation(float x) {
-        return x;
-    }
-    `,
+    defaultActivationSource: 
+    `float activation(float x) {\n\treturn x;\n}`,
 }
 
 export default Shaders;

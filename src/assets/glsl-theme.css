@@ -1,0 +1,102 @@
+.CodeMirror {
+    height: auto;
+    /* max-height: 100px; */
+    font-size: 14px;
+    text-align: left;
+    /* z-index: 0; */
+    background-color: var(--in-bg);
+    margin: 4px;
+
+    border: 2px solid rgb(38, 4, 58);
+    /* color: white; */
+}
+
+.CodeMirror:hover {
+    border: 2px solid var(--in-border-hover);
+}
+
+.CodeMirror .CodeMirror-gutter-elt {
+    background: transparent;
+}
+.CodeMirror .CodeMirror-scroll {
+    height: auto;
+    /* max-height: maxHeight; */
+}
+.CodeMirror .CodeMirror-linenumber, .CodeMirror .CodeMirror-scroll, .CodeMirror .CodeMirror-gutters {
+    color: white;
+    font-family: Consolas, 'SourceCodePro-Medium', monaco, monospace;
+}
+.CodeMirror .CodeMirror-linenumber {
+    color: #2b91af;
+}
+.CodeMirror .CodeMirror-selected {
+    background-color: #264f78;
+}
+.CodeMirror .cm-matchingtag, .CodeMirror .CodeMirror-matchingtag {
+    background-color: #113d6f;
+}
+.CodeMirror .cm-matchingbracket, .CodeMirror .CodeMirror-matchingbracket {
+    background-color: #113d6f;
+    box-shadow: 0px 0px 3px #99b0c7;
+    color: white !important;
+}
+.CodeMirror .CodeMirror-cursor {
+    border-left: 1px solid white;
+    z-index: 3;
+}
+.CodeMirror .CodeMirror-activeline-background {
+    outline: 2px solid #ddd;
+}
+.CodeMirror .cm-m-glsl, .CodeMirror .cm-variable, .CodeMirror .cm-variable-2, .CodeMirror .cm-variable-3 {
+    color: white;
+}
+.CodeMirror .cm-pragma {
+    font-weight: bold;
+    color: #0afff8;
+}
+.CodeMirror .cm-operator {
+    color: #b4b4b4;
+}
+.CodeMirror .cm-comment {
+    color: #57a64a;
+    font-style: italic;
+}
+.CodeMirror .cm-string {
+    color: #d69d85;
+}
+.CodeMirror .cm-attribute {
+    color: #9cdcfe;
+}
+.CodeMirror .cm-number {
+    color: #b5cea8;
+}
+.CodeMirror .cm-def {
+    color: #4ec9b0;
+}
+.CodeMirror .cm-meta {
+    color: #9b9b9b;
+}
+.CodeMirror .cm-keyword, .CodeMirror .cm-tag, .CodeMirror .cm-atom {
+    color: #569cd6;
+}
+.CodeMirror .cm-bracket {
+    color: #808080;
+}
+.CodeMirror .cm-m-clike.cm-builtin {
+    color: #569cd6;
+}
+.CodeMirror .CodeMirror-searching {
+    color: #ddd !important;
+}
+.CodeMirror .CodeMirror-searching.searching-last, .CodeMirror .CodeMirror-searching.searching-first {
+    border-radius: 1px;
+    background-color: #653306;
+    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.8);
+    padding: 1px 0;
+}
+.CodeMirror .CodeMirror-searching.searching-current-match {
+    background-color: #515c6a;
+}
+.CodeMirror-focused {
+    border: 2px solid var(--in-border-hover);
+}

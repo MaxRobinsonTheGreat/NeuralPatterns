@@ -1,0 +1,10 @@
+:root {
+    --panel-bg:#421f59;
+    --panel-border:white;
+    --btn-bg:#3c0058;
+    --btn-hover:#53445a;
+    --btn-active: #3c0058;
+    --in-bg: #380658;
+    --in-border: rgb(43, 32, 68);
+    --in-border-hover: rgb(255, 250, 181);
+}

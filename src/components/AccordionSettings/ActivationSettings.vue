@@ -1,51 +1,42 @@
 <template>
     <div>
-        <!-- <codemirror v-model='code' ref='editor' id='thing' :options="{
+        <codemirror v-model='code' ref='editor' :options="{
             viewportMargin: Infinity,
+            indentWithTabs: true,
             theme: 'glsl',
             mode: 'glsl',
-        }"></codemirror> -->
-        <textarea id='editor' class='CodeMirror' v-model='code'></textarea>
-        <button v-on:click="apply()">Apply</button>
-        <!-- <div class='error-container'>
-            <pre v-if='model.error' class='error hl'>{{model.error}}</pre>
-            <pre v-if='model.errorDetail' class='error detail'>{{model.errorDetail}}<span v-if='model.isFloatError'>
-                Did you forget to add a dot symbol? E.g. <span class='hl'>10</span> should be <span class='hl'>10.</span> and <span class='hl'>42</span> should be <span class='hl'>42.</span>
-            </span></pre>
-        </div>  -->
+        }"></codemirror>
     </div>
 </template>
 
 <script>
 import Controller from '../../js/controller';
-// import { codemirror } from 'vue-codemirror-lite';
-// var CodeMirror = require('codemirror/lib/codemirror.js')
-// CodeMirror
-// console.log(CodeMirror)
+import { codemirror } from 'vue-codemirror-lite';
+var CodeMirror = require('codemirror/lib/codemirror.js');
+require('./glslmode')(CodeMirror);
 
-// import Vue from 'vue'
-// Vue.use(codemirror)
-
-// let CodeMirror = require('codemirror/lib/codemirror.js')
-// import glslMode from './glslmode.js';
-// glslMode(CodeMirror);
-
-// Vue.use(codemirror)
-// import Utils from '../../js/utils';
+// have to require it for commenting to work. idk why
+let toggleComment = require('codemirror/addon/comment/comment.js');
+toggleComment
+function toggleGLSLComment(cm) {
+    cm.toggleComment({
+        indent: true,
+        lineComment: '//'
+    });
+}
 
 export default {
     name: 'ActivationSettings',
     components: {
-        // codemirror
+        codemirror
     },
     mounted() {
-        // console.log(document.getElementById('thing'))
-        // CodeMirror.fromTextArea(document.getElementById('thing'), {
-        //     lineNumbers: true,
-        //     value: "function myScript(){return 100;}\n",
-        //     mode:  "javascript"
-        // });
-        // glslMode(CodeMirror)
+        this.$refs.editor.editor.setOption('extraKeys', {
+            'Cmd-/': toggleGLSLComment,
+            'Ctrl-/': toggleGLSLComment
+        });
+        this.$refs.editor.editor.refresh();
+
     },
     data() {
         return {
@@ -53,18 +44,18 @@ export default {
         }
     },
 
-    methods: {
-        apply() {
-            Controller.activationSource = this.code;
-            console.log(this.code)
-            Controller.apply(true);
+    watch: {
+        code() {
+            if (this.pendingSetCode) {
+                clearTimeout(this.pendingSetCode);
+            }
+
+            this.pendingSetCode = setTimeout(() => {
+                Controller.activationSource = this.code;
+                Controller.apply(true);
+            }, 500);
         }
-    },
+    }
 }
+
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-
-<style src='codemirror/lib/codemirror.css'>
-    /* global styles */
-</style> 
