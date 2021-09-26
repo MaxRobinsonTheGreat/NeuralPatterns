@@ -84,6 +84,10 @@ export default {
                         this.$refs.stateSettings.reset();
                         break;
                     }
+                    case('s'): {
+                        this.$refs.stateSettings.reset('empty');
+                        break;
+                    }
                 }
             }
         }

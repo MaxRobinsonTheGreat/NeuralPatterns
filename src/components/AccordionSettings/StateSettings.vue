@@ -2,9 +2,10 @@
     <div id="state-settings">
         <button  v-for="val in reset_types" :key="val.type" 
             type='button'
+            :title="val.tooltip"
             v-bind:class="{selected: selected_type === val.type}"
             v-on:click="reset(val.type)">
-            {{val.title}}
+                {{val.title}}
         </button>
         <button type='button' id='empty' v-on:click="reset('empty')">Clear</button>
     </div>
@@ -18,10 +19,10 @@ export default {
     data() {
         return {
             reset_types: [
-                {type: 'random', title: 'Random Floats'},
-                {type: 'random_bool', title: 'Random Ints'},
-                {type: 'center', title: 'Center'},
-                {type: 'center_top', title: 'Center Top'}
+                {type: 'random', title: 'Random Floats', tooltip: 'Random decimal values between 0 and 1'},
+                {type: 'random_bool', title: 'Random Ints', tooltip: 'Random 1s and 0s'},
+                {type: 'center', title: 'Center', tooltip: 'A single 1 in the center'},
+                {type: 'center_top', title: 'Center Top', tooltip: 'A single 1 at the top (wraps to bottom)'}
             ],
             selected_type: Controller.reset_type,
         }
@@ -29,10 +30,10 @@ export default {
 
     methods: {
         reset(type=undefined) {
-            if (type!==undefined) {
+            if (type!==undefined && type!==`empty`) {
                 this.selected_type = type;
             }
-            Controller.resetState(this.selected_type);
+            Controller.resetState(type);
         },
     }
 }
@@ -40,6 +41,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+#state-settings {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
 button:not(#empty) {
     width: 120px;
 }

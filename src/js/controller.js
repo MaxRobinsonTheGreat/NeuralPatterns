@@ -72,7 +72,7 @@ const Controller = {
     },
 
     resetState(type = this.reset_type) {
-        this.reset_type = type!=="empty" ? type : this.reset_type;
+        this.reset_type = (type!==`empty`) ? type : this.reset_type;
         let state = Utils.generateState(this.renderer.width, this.renderer.height, type);
         this.renderer.setState(state);
     },
