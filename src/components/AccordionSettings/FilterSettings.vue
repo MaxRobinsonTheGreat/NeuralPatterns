@@ -21,11 +21,11 @@
             <input v-model.number="min" type="number" id="range">
             <input v-model.number="max" type="number"><br>
 
+            <label for="hor_sym">Horizontal Symmetry: </label>
             <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry()">
-            <label for="hor_sym">Horizontal Symmetry</label>
             <br>
+            <label for="ver_sym">Vertical Symmetry: </label>
             <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry()">
-            <label for="ver_sym">Vertical Symmetry</label>
         </div>
         
     </div>
@@ -131,10 +131,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-input {
-    width: 50px;
-}
-
 table {
     margin: auto;
 }
@@ -178,6 +174,11 @@ input:hover:enabled {
 #range {
     margin-top: 5px;
     margin-bottom: 5px;
+}
+
+#ver_sym, #hor_sym {
+    margin-top: 5px;
+    margin-bottom: 10px;
 }
 
 </style>

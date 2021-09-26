@@ -37,7 +37,6 @@ export default {
             'Ctrl-/': toggleGLSLComment
         });
         setTimeout(()=>{
-            console.log('refresh')
             this.$refs.editor.editor.refresh();
         }, 1000)
     },

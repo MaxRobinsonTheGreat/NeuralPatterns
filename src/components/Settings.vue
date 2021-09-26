@@ -15,7 +15,7 @@
                 <AccordionItem title='Filter' :start_open=true>
                     <FilterSettings ref='filterSettings'></FilterSettings>
                 </AccordionItem>
-                <AccordionItem title='Activation'>
+                <AccordionItem title='Activation' :start_open=true>
                     <ActivationSettings ref='activationSettings'></ActivationSettings>
                 </AccordionItem>
                 <AccordionItem title='Display'> 
