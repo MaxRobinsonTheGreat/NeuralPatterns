@@ -5,7 +5,7 @@
                 <!-- <a id="downloadEl" style="display: none;"></a> -->
                 <button id="min-btn" v-on:click="setOpen(false)"><i class="fa fa-minus"></i></button>
                 <button id="save-btn" v-on:click="save()">Save</button>
-                <button id="load-btn" v-on:click="save()">Load</button>
+                <button id="load-btn" v-on:click="loadFile">Load</button>
                 <!-- <input id="loadFile" type="file" @change="loadFile"> -->
             </div>
             <div id='accordion'>
@@ -16,7 +16,7 @@
                     <FilterSettings ref='filterSettings'></FilterSettings>
                 </AccordionItem>
                 <AccordionItem title='Activation'>
-                    <ActivationSettings ref='activationSettings'></ActivationSettings>    
+                    <ActivationSettings ref='activationSettings'></ActivationSettings>
                 </AccordionItem>
                 <AccordionItem title='Display'> 
                     <DisplaySettings ref='displaySettings'></DisplaySettings>

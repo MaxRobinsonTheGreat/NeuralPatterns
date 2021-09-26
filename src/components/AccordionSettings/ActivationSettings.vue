@@ -6,6 +6,7 @@
             theme: 'glsl',
             mode: 'glsl',
         }"></codemirror>
+        <div id='error'> {{this.error}} </div>
     </div>
 </template>
 
@@ -17,11 +18,11 @@ require('./glslmode')(CodeMirror);
 
 // have to require it for commenting to work. idk why
 let toggleComment = require('codemirror/addon/comment/comment.js');
-toggleComment
+toggleComment // using it so linting doesn't get mad
 function toggleGLSLComment(cm) {
     cm.toggleComment({
         indent: true,
-        lineComment: '//'
+        lineComment: '//',
     });
 }
 
@@ -35,12 +36,30 @@ export default {
             'Cmd-/': toggleGLSLComment,
             'Ctrl-/': toggleGLSLComment
         });
-        this.$refs.editor.editor.refresh();
-
+        setTimeout(()=>{
+            console.log('refresh')
+            this.$refs.editor.editor.refresh();
+        }, 1000)
     },
     data() {
         return {
-            code: Controller.activationSource
+            code: Controller.activationSource,
+            error: ''
+        }
+    },
+
+    methods: {
+        parseError(error) {
+            if (error) {
+                error = error.substring(0, error.length-1);
+                if (error.includes('float') && error.includes('int')){
+                    error = '(Use 1. instead of 1 for floats) '.concat(error);
+                }
+                this.error = error;
+            }
+            else {
+                this.error = '';
+            }
         }
     },
 
@@ -52,10 +71,22 @@ export default {
 
             this.pendingSetCode = setTimeout(() => {
                 Controller.activationSource = this.code;
-                Controller.apply(true);
+                let error = Controller.apply(true);
+                this.parseError(error);
+                this.pendingSetCode = 0;
             }, 500);
         }
     }
 }
 
 </script>
+
+<style scoped>
+#error {
+    margin: 5px;
+    text-align: left;
+    color: rgb(255, 0, 0);
+    font-size: 14px;
+    font-family: Consolas, 'SourceCodePro-Medium', monaco, monospace;
+}
+</style>

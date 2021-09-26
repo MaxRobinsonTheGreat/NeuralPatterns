@@ -15,7 +15,6 @@ class Renderer {
 		this.persistent = false;
 	}
 
-
 	compileShaders(vertexSource, fragSource, activationSource=undefined) {
 		this.vertexSource = vertexSource; // saved without string replacements
 		this.fragSource = fragSource;
@@ -61,14 +60,15 @@ class Renderer {
 		// Use the combined shader program object
 		gl.useProgram(shaderProgram);
 
-		if(gl.getShaderInfoLog(vertShader)){
-			console.warn(gl.getShaderInfoLog(vertShader));
-		}
 		if(gl.getShaderInfoLog(fragShader)){
-			console.warn(gl.getShaderInfoLog(fragShader));
+			// console.error("FRAGMENT SHADER ERROR:", gl.getShaderInfoLog(fragShader));
+			return gl.getShaderInfoLog(fragShader);
+		}
+		if(gl.getShaderInfoLog(vertShader)){
+			console.error("VERTEX SHADER ERROR:", gl.getShaderInfoLog(vertShader));
 		}
 		if(gl.getProgramInfoLog(shaderProgram)){
-			console.warn(gl.getProgramInfoLog(shaderProgram));
+			console.error("SHADER PROGRAM ERROR:", gl.getProgramInfoLog(shaderProgram));
 		}
 		let vertexBuffer = gl.createBuffer();
 
@@ -105,17 +105,18 @@ class Renderer {
 		this.doStepAttr = gl.getUniformLocation(shaderProgram, "doStep");
 		this.kernelAttr = gl.getUniformLocation(this.shader, "u_kernel[0]");
 		this.colorMaskAttr = gl.getUniformLocation(this.shader, "colorMask");
+		return null;
 	}
 
-	setFragValues(fragSource) {
-		fragSource = fragSource.replace("ACTIVATION_FUNCTION", this.activationSource);
-		let persistentSource = this.persistent ? Shaders.persistentSource : '';
+	setFragValues(fragSource, activationSource=this.activationSource, persistent=this.persistent) {
+		fragSource = fragSource.replace("ACTIVATION_FUNCTION", activationSource);
+		let persistentSource = persistent ? Shaders.persistentSource : '';
 		fragSource = fragSource.replace("PERSISTENT_DISPLAY", persistentSource);
 		return fragSource;
 	}
 
 	recompile() {
-		this.compileShaders(this.vertexSource, this.fragSource);
+		return this.compileShaders(this.vertexSource, this.fragSource);
 	}
 
 	getState() {
@@ -200,7 +201,7 @@ class Renderer {
 	beginRender(){
 		let gl = this.gl;
 		if (this.running)
-			throw 'called beginRender when already rendering'
+			throw 'called beginRender() when already rendering'
 		this.running = true;
 
 		gl.uniform2f(this.onePixelAttr, 1/this.width, 1/this.height);

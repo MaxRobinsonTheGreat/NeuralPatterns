@@ -53,11 +53,12 @@ const Controller = {
     apply(recompile=false) {
         if (!this.paused) {
             this.renderer.stopRender();
-            this._apply(recompile);
+            let error = this._apply(recompile);
             this.renderer.beginRender();
+            return error;
         }
         else {
-            this._apply(recompile);
+            return this._apply(recompile);
         }
     },
 
@@ -66,7 +67,8 @@ const Controller = {
         this.renderer.setColor(this.color);
         this.renderer.activationSource = this.activationSource;
         if (recompile)
-            this.renderer.recompile();
+            return this.renderer.recompile();
+        return null;
     },
 
     resetState(type = this.reset_type) {
