@@ -82,5 +82,12 @@ i {
   width: 100%;
 }
 
+a {
+    color: rgb(80, 80, 255);
+}
+a:visited {
+    color: rgb(216, 116, 255);
+}
+
 </style>
 

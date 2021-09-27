@@ -90,6 +90,10 @@ const Controller = {
             this.renderer.beginRender();
         return this.paused;
     },
+
+    step() {
+        this.renderer.render();
+    }
 }
 Controller.init()
 export default Controller

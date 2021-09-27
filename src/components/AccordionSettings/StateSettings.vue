@@ -7,7 +7,8 @@
             v-on:click="reset(val.type)">
                 {{val.title}}
         </button>
-        <button type='button' id='empty' v-on:click="reset('empty')">Clear</button>
+        <br>
+        <button type='button' id='empty' v-on:click="reset('empty')" title='Set all pixels to 0. Hotkey: S'>Clear</button>
     </div>
 </template>
 

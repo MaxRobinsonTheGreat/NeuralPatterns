@@ -9,6 +9,9 @@
                 <!-- <input id="loadFile" type="file" @change="loadFile"> -->
             </div>
             <div id='accordion'>
+                <AccordionItem title='About'>
+                    <About></About>
+                </AccordionItem>
                 <AccordionItem title='Reset Options'>
                     <StateSettings ref='stateSettings'></StateSettings>
                 </AccordionItem>
@@ -23,12 +26,15 @@
                 </AccordionItem>
             </div>
             <div id='footer'>
-                <button id='pause-btn' v-on:click="pauseToggle()">
+                <button id='pause-btn' v-on:click="pauseToggle()" title='Pause/Play. Hotkey: Spacebar'>
                     <i class="fa fa-pause" v-if=is_playing></i>
                     <i class="fa fa-play" v-else></i>
                 </button>
-                <button id='randomize-btn' v-on:click="randomize()">Randomize</button>
-                <button id='reset-btn' v-on:click="reset()">Reset State</button>
+                <button id='step-btn' v-on:click="step()" v-if=!is_playing title='Step the simulation once. Hotkey: A'>
+                    <i class="fa fa-step-forward"></i>
+                </button>
+                <button id='randomize-btn' v-on:click="randomize()" title='Randomize filter and color. Hotkey: F'>Randomize</button>
+                <button id='reset-btn' v-on:click="reset()" title='Reset pixel values. Hotkey: D'>Reset State</button>
             </div>
         </div>
         <button id='settings-btn' v-on:click="setOpen(true)" v-show="!panel_open">
@@ -43,6 +49,7 @@ import Utils from '../js/utils'
 import Controller from '../js/controller'
 
 import AccordionItem from './AccordionSettings/AccordionItem'
+import About from './AccordionSettings/About'
 import StateSettings from './AccordionSettings/StateSettings'
 import FilterSettings from './AccordionSettings/FilterSettings'
 import DisplaySettings from './AccordionSettings/DisplaySettings'
@@ -53,6 +60,7 @@ export default {
     name: 'Settings',
     components: {
         AccordionItem,
+        About,
         StateSettings,
         FilterSettings,
         DisplaySettings,
@@ -88,6 +96,11 @@ export default {
                         this.$refs.stateSettings.reset('empty');
                         break;
                     }
+                    case('a'): {
+                        if (!this.is_playing)
+                            this.step();
+                        break;
+                    }
                 }
             }
         }
@@ -96,6 +109,9 @@ export default {
         pauseToggle() {
             Controller.pauseToggle();
             this.is_playing = !Controller.paused;
+        },
+        step() {
+            Controller.step();
         },
         randomize() {
             this.$refs.filterSettings.randomize();
@@ -166,7 +182,7 @@ export default {
     /* display: inline-block; */
     /* min-width: 300px; */
     width: 100%;
-    max-width: 300px;
+    max-width: 350px;
     /* height: auto; */
     margin: 10px;
 
@@ -188,24 +204,18 @@ export default {
     /* width: 100%; */
 }
 
-#min-btn, #pause-btn {
+#min-btn, #pause-btn, #step-btn {
     float: left;
     border-style: solid;
+    width: 40px;
 }
 
 #save-btn, #load-btn {
     float: right;
 }
 
-#loadFile {
-    /* float: right; */
-}
-
 #accordion {
-    /* overflow: auto; */ 
-    /* position: relative; */
     max-height: 85vh;
-    /* height: 100px; */
     margin-left: 5px;
     margin-right: 5px;
     overflow-y: auto;
@@ -219,11 +229,7 @@ export default {
     float: right;
 }
 
-#min-btn, #pause-btn {
-    width: 40px;
-}
-
-#min-btn, #pause-btn, #settings-btn, #randomize-btn, #reset-btn {
+#min-btn, #pause-btn, #step-btn, #settings-btn, #randomize-btn, #reset-btn {
     height: 40px;
     font-size: 15px;
 }

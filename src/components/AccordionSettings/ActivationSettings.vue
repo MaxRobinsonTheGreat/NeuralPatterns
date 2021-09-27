@@ -7,10 +7,14 @@
             mode: 'glsl',
         }"></codemirror>
         <div id='error'> {{this.error}} </div>
+        <WikiSection><ActivationWiki></ActivationWiki></WikiSection>
     </div>
 </template>
 
 <script>
+import WikiSection from '../Wiki/WikiSection';
+import ActivationWiki from '../Wiki/ActivationWiki';
+
 import Controller from '../../js/controller';
 import { codemirror } from 'vue-codemirror-lite';
 var CodeMirror = require('codemirror/lib/codemirror.js');
@@ -29,7 +33,9 @@ function toggleGLSLComment(cm) {
 export default {
     name: 'ActivationSettings',
     components: {
-        codemirror
+        codemirror,
+        ActivationWiki,
+        WikiSection
     },
     mounted() {
         this.$refs.editor.editor.setOption('extraKeys', {

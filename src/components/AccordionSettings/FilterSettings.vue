@@ -27,6 +27,7 @@
             <label for="ver_sym">Vertical Symmetry: </label>
             <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry()">
         </div>
+        <WikiSection><ConvolutionWiki></ConvolutionWiki></WikiSection>
         
     </div>
 </template>
@@ -36,16 +37,23 @@
 import Vue from 'vue'
 import Utils from '../../js/utils'
 import Controller from '../../js/controller'
+import WikiSection from '../Wiki/WikiSection';
+import ConvolutionWiki from '../Wiki/ConvolutionWiki.vue';
 
 export default {
     name: 'FilterSettings',
+    components: {
+        WikiSection,
+        ConvolutionWiki
+    },
     data() {
         return {
             filter: {},
             min: -1,
             max: 1,
             hor_sym: false,
-            ver_sym: false
+            ver_sym: false,
+            wiki_open: false
         }
     },
 
