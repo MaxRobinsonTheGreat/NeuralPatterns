@@ -28,9 +28,9 @@ const Utils = {
 				for(let i = 0; i < cells.length; i++){
 					cells[i] = 0;
 				}
-				let center = Math.floor(cells.length/2) - 2;
+				let center = Math.floor(cells.length/2);
 				if (height%2 === 0) {
-					// if height is even, it breaks for some reason
+					// if height is even, it must be shifted over for some reason
 					center += width*2;
 				}
 				cells[center] = 255;
@@ -98,12 +98,6 @@ const Utils = {
 		k[8] = k[6];
 		return k;
 	}
-
-    // structureKernel(kernel) {
-    //     let s_kernel = [];
-    //     while(kernel.length) s_kernel.push(kernel.splice(0,3));
-    //     return s_kernel;
-    // },
 }
 
 export default Utils
