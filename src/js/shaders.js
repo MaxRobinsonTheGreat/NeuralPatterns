@@ -43,7 +43,8 @@ const Shaders = {
 
         } else {
 			// color masking
-			gl_FragColor = texture2D(u_image, texCoord).rgba * colorMask;
+            float x = texture2D(u_image, texCoord).a;
+			gl_FragColor = vec4(x, x, x, x) * colorMask;
             
         }
     }
