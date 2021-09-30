@@ -4,12 +4,13 @@
         <input id='color' type='color' v-model="hexColor" @change="changeColor()">
 
         <button type='button' v-on:click="randomize()">Randomize Color</button>
+        <br>
 
         <label for='pixelated'>Pixelated: </label>
-        <input id='pixelated' type='checkbox' v-model="pixelated" @change="togglePixelated()"><br>
-
+        <input id='pixelated' type='checkbox' v-model="pixelated" @change="togglePixelated()">
+        <br>
         <label for='persistant'>Persistant Pixels: </label>
-        <input id='persistant' type='checkbox' v-model="persistent" @change="setPersistent()"><br>
+        <input id='persistant' type='checkbox' v-model="persistent" @change="setPersistent()">
     </div>
 </template>
 
