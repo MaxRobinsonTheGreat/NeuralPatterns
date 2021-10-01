@@ -10,19 +10,19 @@
             </div>
             <div id='accordion'>
                 <AccordionItem title='About'>
-                    <About></About>
+                    <About/>
                 </AccordionItem>
                 <AccordionItem title='Reset Options'>
-                    <StateSettings ref='stateSettings'></StateSettings>
+                    <StateSettings ref='stateSettings'/>
                 </AccordionItem>
                 <AccordionItem title='Filter' :start_open=true>
-                    <FilterSettings ref='filterSettings'></FilterSettings>
+                    <FilterSettings ref='filterSettings'/>
                 </AccordionItem>
                 <AccordionItem title='Activation' :start_open=true>
-                    <ActivationSettings ref='activationSettings'></ActivationSettings>
+                    <ActivationSettings ref='activationSettings'/>
                 </AccordionItem>
                 <AccordionItem title='Display'> 
-                    <DisplaySettings ref='displaySettings'></DisplaySettings>
+                    <DisplaySettings ref='displaySettings'/>
                 </AccordionItem>
             </div>
             <div id='footer'>

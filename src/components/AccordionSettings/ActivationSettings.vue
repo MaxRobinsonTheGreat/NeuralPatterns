@@ -7,7 +7,7 @@
             mode: 'glsl',
         }"></codemirror>
         <div id='error'> {{this.error}} </div>
-        <WikiSection><ActivationWiki></ActivationWiki></WikiSection>
+        <WikiSection><ActivationWiki/></WikiSection>
     </div>
 </template>
 

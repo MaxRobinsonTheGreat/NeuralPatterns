@@ -5,9 +5,9 @@
         <br><br>
 
         Convolution:
-        <WikiSection><ConvolutionWiki></ConvolutionWiki></WikiSection>
+        <WikiSection><ConvolutionWiki/></WikiSection>
         Activation:
-        <WikiSection><ActivationWiki></ActivationWiki></WikiSection>
+        <WikiSection><ActivationWiki/></WikiSection>
         <br>
 
         <a href="https://github.com/MaxRobinsonTheGreat/webgl-convolution" target="_blank">The code</a>

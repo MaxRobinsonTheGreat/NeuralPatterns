@@ -27,7 +27,7 @@
             <label for="hor_sym" :title="this.hor_tooltip">Horizontal Symmetry: </label>
             <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry()" :title="this.hor_tooltip">
         </div>
-        <WikiSection><ConvolutionWiki></ConvolutionWiki></WikiSection>
+        <WikiSection><ConvolutionWiki/></WikiSection>
         
     </div>
 </template>
