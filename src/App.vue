@@ -1,35 +1,47 @@
 <template>
   <div id="app">
-    <Settings @save="save_open=true" @load="load_open=true"/>
+    <Settings ref="Settings" @save="save_open=true" @load="load_open=true"/>
     <Renderer/>
     <OptionsBox  v-if="save_open" title="Save Settings" @close="save_open=false">
-
+		<SaveOptions @close="save_open=false"/>
 	</OptionsBox>
     <OptionsBox  v-if="load_open" title="Load Settings File" @close="load_open=false">
-		
+		<LoadOptions 
+			@close="load_open=false"
+			@loadConfig="loadConfig"/>
 	</OptionsBox>
 
   </div>
 </template>
 
 <script>
-import OptionsBox from './components/Options/OptionsBox.vue'
 import Renderer from './components/Renderer.vue'
 import Settings from './components/Settings.vue'
+
+import OptionsBox from './components/Options/OptionsBox.vue'
+import SaveOptions from './components/Options/SaveOptions.vue'
+import LoadOptions from './components/Options/LoadOptions.vue'
 
 export default {
 	name: 'App',
 	components: {
 		Renderer,
 		Settings,
-		OptionsBox
+		OptionsBox,
+		SaveOptions,
+		LoadOptions
 	},
 	data() {
 		return {
-			save_open: true,
+			save_open: false,
 			load_open: false
 		}
 	},
+	methods: {
+		loadConfig(c) {
+			this.$refs.Settings.loadConfig(c);
+		}
+	}
 }
 </script>
 

@@ -2,11 +2,9 @@
     <div>
         <div id="settings-panel" v-show="panel_open">
             <div id='header'>
-                <!-- <a id="downloadEl" style="display: none;"></a> -->
                 <button id="min-btn" v-on:click="setOpen(false)"><i class="fa fa-minus"></i></button>
                 <button id="save-btn" v-on:click="$emit('save')">Save</button>
                 <button id="load-btn" v-on:click="$emit('load')">Load</button>
-                <!-- <input id="loadFile" type="file" @change="loadFile"> -->
             </div>
             <div id='accordion'>
                 <AccordionItem title='About'>
@@ -120,38 +118,7 @@ export default {
         reset() {
             this.$refs.stateSettings.reset();
         },
-        save() {
-            let config = {};
-            console.log(Controller.filter)
-            config["reset_type"] = Controller.reset_type;
-            config["filter"] = Controller.filter;
-            config["activation"] = Controller.activationSource;
-            config["color"] = Controller.color;
-            config["persistent"] = Controller.renderer.persistent;
-
-            let data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config));
-            let downloadEl = document.getElementById('downloadEl');
-            downloadEl.setAttribute("href", data);
-            downloadEl.setAttribute("download", "config.json");
-            downloadEl.click();
-        },
-        setOpen(open) {
-            this.panel_open=open;
-        },
-
-        loadFile(e) {
-            let files = e.srcElement.files;
-            if (!files.length) return;
-            let reader = new FileReader();
-            reader.onload = this.loadConfig;
-            reader.readAsText(files[0]);
-        },
-
-        loadConfig(e) {
-            let config = JSON.parse(e.target.result);
-            config.filter = this.toFloat32(config.filter);
-            console.log(config.persistent)
-
+        loadConfig(config) {
             this.$refs.stateSettings.persistent = config.persistent;
             this.$refs.stateSettings.active_button = config.active_button;
             this.$refs.filterSettings.setFilter(config.filter);
@@ -160,15 +127,9 @@ export default {
 
             Controller.load(config);
         },
-
-        toFloat32(arr) {
-            let farr = [];
-            for (let i in arr) {
-                farr[i] = arr[i];
-            }
-            return Float32Array.from(farr);
-        }
-
+        setOpen(open) {
+            this.panel_open=open;
+        },
     }
 }
 </script>
