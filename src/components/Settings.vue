@@ -4,8 +4,8 @@
             <div id='header'>
                 <!-- <a id="downloadEl" style="display: none;"></a> -->
                 <button id="min-btn" v-on:click="setOpen(false)"><i class="fa fa-minus"></i></button>
-                <button id="save-btn" v-on:click="save()">Save</button>
-                <button id="load-btn" v-on:click="loadFile">Load</button>
+                <button id="save-btn" v-on:click="$emit('save')">Save</button>
+                <button id="load-btn" v-on:click="$emit('load')">Load</button>
                 <!-- <input id="loadFile" type="file" @change="loadFile"> -->
             </div>
             <div id='accordion'>
