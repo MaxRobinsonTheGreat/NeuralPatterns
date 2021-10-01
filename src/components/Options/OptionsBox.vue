@@ -4,7 +4,7 @@
         <div id='box'>
             <div id='header'>
                 {{this.title}}
-                <button id="load-btn" ><i class="fa fa-times" v-on:click="close"></i></button>
+                <button id="load-btn" v-on:click="close"><i class="fa fa-times" ></i></button>
             </div>
             <slot id='content'></slot>
         </div>
@@ -35,7 +35,7 @@ export default {
     margin: 0px;
     padding: 0px;
     background-color: black;
-    opacity: 50%;
+    opacity: 0.5;
     z-index: 3;
 }
 #box {
@@ -44,7 +44,6 @@ export default {
     background-color: green;
     min-height: 200px;
     width: 300px;
-    opacity: 100%;
     position: absolute;
     top: 50%;
     left: 50%;
