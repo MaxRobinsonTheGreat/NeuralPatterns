@@ -21,11 +21,11 @@
             <input v-model.number="min" type="number" id="range">
             <input v-model.number="max" type="number"><br>
 
-            <label for="hor_sym">Horizontal Symmetry: </label>
-            <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry()">
+            <label for="ver_sym" :title="this.ver_tooltip">Vertical Symmetry: </label>
+            <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry()" :title="this.ver_tooltip">
             <br>
-            <label for="ver_sym">Vertical Symmetry: </label>
-            <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry()">
+            <label for="hor_sym" :title="this.hor_tooltip">Horizontal Symmetry: </label>
+            <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry()" :title="this.hor_tooltip">
         </div>
         <WikiSection><ConvolutionWiki></ConvolutionWiki></WikiSection>
         
@@ -51,9 +51,11 @@ export default {
             filter: {},
             min: -1,
             max: 1,
-            hor_sym: false,
             ver_sym: false,
-            wiki_open: false
+            hor_sym: false,
+            wiki_open: false,
+            ver_tooltip: 'Right column filter values mirror left column ones, resulting in a vertically symmetrical update rule',
+            hor_tooltip: 'Bottom row filter values mirror top row ones, resulting in a horizontally symmetrical update rule',
         }
     },
 
@@ -186,7 +188,7 @@ input:hover:enabled {
 
 #ver_sym, #hor_sym {
     margin-top: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 </style>

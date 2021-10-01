@@ -5,12 +5,8 @@
 
         <button type='button' v-on:click="randomize()">Randomize Color</button>
         <br>
-
-        <label for='pixelated'>Pixelated: </label>
-        <input id='pixelated' type='checkbox' v-model="pixelated" @change="togglePixelated()">
-        <br>
-        <label for='persistant'>Persistant Pixels: </label>
-        <input id='persistant' type='checkbox' v-model="persistent" @change="setPersistent()">
+        <label for='persistant' :title="this.tooltip">Persistant Pixels: </label>
+        <input id='persistant' type='checkbox' v-model="persistent" :title="this.tooltip" @change="setPersistent()">
     </div>
 </template>
 
@@ -24,8 +20,8 @@ export default {
         return {
             rgbColor: [0, 0, 0],
             hexColor: '#000000',
-            pixelated: false,
             persistent: false,
+            tooltip: 'If true, once pixel values are set to non-zero values they are permanently fixed.'
         }
     },
 
@@ -66,19 +62,6 @@ export default {
             let b = Math.ceil(rgb[2]*255);
             return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
         },
-
-        togglePixelated() {
-            let c = Controller.renderer.canvas;
-            if (this.pixelated) {
-                c.style['image-rendering'] = 'pixelated';
-                c.style['-ms-interpolation-mode'] = 'nearest-neighbor';
-            }
-            else {
-                c.style['image-rendering'] = 'auto';
-                c.style['-ms-interpolation-mode'] = 'auto';  
-            }
-            Controller.renderer.updateDisplay();
-        },
         
         setPersistent() {
             Controller.setPersistent(this.persistent)
@@ -97,6 +80,10 @@ export default {
 #color {
     background-color: rgb(61, 21, 112);
     border: 1px black solid;
+}
+
+#persistant {
+    margin-top: 10px;
 }
 
 </style>
