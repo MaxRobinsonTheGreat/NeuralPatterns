@@ -4,23 +4,23 @@
         "path": "gameoflife.json"
     },
     {
-        "name": "Stars",
-        "path": "stars.json"
-    },
-    {
         "name": "Wolfram's Rule 30",
         "path": "rule30.json"
     },
     {
-        "name": "Pathways",
-        "path": "pathways.json"
+        "name": "Stars",
+        "path": "stars.json"
     },
     {
-        "name": "Lights",
-        "path": "lights.json"
+        "name": "Tanh",
+        "path": "tanh.json"
     },
     {
         "name": "Waves",
         "path": "waves.json"
+    },
+    {
+        "name": "Pathways",
+        "path": "pathways.json"
     }
 ]
