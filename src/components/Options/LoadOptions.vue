@@ -11,7 +11,7 @@
         <div>
             <input id="uploadFile" type="file" @change="uploadFile" v-if="uploadingCustom">
         </div>
-        <button id="load-btn" @click="load">Load</button>
+        <button id="load-btn" @click="load" v-if="can_load">Load</button>
     </div>
 </template>
 
@@ -21,7 +21,7 @@ export default {
     name: 'SaveOptions',
     data() {
         let filelist = require('../../assets/settings/_file_list.json');
-        let options = JSON.parse(JSON.stringify(filelist)); // deep copy
+        let options = JSON.parse(JSON.stringify(filelist)); // deep copy, will to modify
         options.unshift(    
         {
             "name": "Upload custom...", 
@@ -31,7 +31,8 @@ export default {
             selected: undefined,
             config: undefined,
             uploadingCustom: false,
-            options
+            options,
+            can_load: false,
         };
     },
 
@@ -41,6 +42,7 @@ export default {
             if (!this.uploadingCustom) {
                 this.config = require('../../assets/settings/'+this.selected.path);
                 this.config.filter = this.toFloat32(this.config.filter);
+                this.can_load = true;
             }
         },
         uploadFile(e) {
@@ -52,6 +54,7 @@ export default {
         },
 
         loadConfigFromFile(e) {
+            this.can_load = true;
             this.config = JSON.parse(e.target.result);
             this.config.filter = this.toFloat32(this.config.filter);
         },
