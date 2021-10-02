@@ -22,6 +22,8 @@ import OptionsBox from './components/Options/OptionsBox.vue'
 import SaveOptions from './components/Options/SaveOptions.vue'
 import LoadOptions from './components/Options/LoadOptions.vue'
 
+document.title = "Neural Patterns";
+
 export default {
 	name: 'App',
 	components: {
