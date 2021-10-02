@@ -127,6 +127,7 @@ export default {
                 this.$refs.displaySettings.randomize();
             else
                 this.$refs.displaySettings.setColor(config.color);
+            this.$refs.displaySettings.persistent = config.persistent;
             Controller.load(config);
         },
         setOpen(open) {

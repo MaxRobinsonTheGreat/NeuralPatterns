@@ -2,7 +2,6 @@
     <div>
         <codemirror v-model='code' ref='editor' :options="{
             viewportMargin: Infinity,
-            indentWithTabs: true,
             theme: 'glsl',
             mode: 'glsl',
         }"></codemirror>

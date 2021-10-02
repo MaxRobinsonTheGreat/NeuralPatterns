@@ -1,6 +1,17 @@
 <template>
     <div>
-        <input id="loadFile" type="file" @change="loadFile">
+        Choose Settings: 
+        <select name="cars" id="cars" v-model="selected" @change="select()">
+            <option v-for="(option, i) in options "
+                v-bind:value="option" 
+                :key="i" >
+                {{option.name}}
+            </option>
+        </select>
+        <div>
+            <input id="uploadFile" type="file" @change="uploadFile" v-if="uploadingCustom">
+        </div>
+        <button id="load-btn" @click="load">Load</button>
     </div>
 </template>
 
@@ -8,21 +19,41 @@
 
 export default {
     name: 'SaveOptions',
+    data() {
+        let filelist = require('../../assets/settings/_file_list.json');
+        let options = JSON.parse(JSON.stringify(filelist)); // deep copy
+        options.unshift(    
+        {
+            "name": "Upload custom...", 
+            "isCustom": true
+        });
+        return {
+            selected: undefined,
+            config: undefined,
+            uploadingCustom: false,
+            options
+        };
+    },
 
     methods: {
-        loadFile(e) {
+        select() {
+            this.uploadingCustom = this.selected.isCustom;
+            if (!this.uploadingCustom) {
+                this.config = require('../../assets/settings/'+this.selected.path);
+                this.config.filter = this.toFloat32(this.config.filter);
+            }
+        },
+        uploadFile(e) {
             let files = e.srcElement.files;
             if (!files.length) return;
             let reader = new FileReader();
-            reader.onload = this.loadConfig;
+            reader.onload = this.loadConfigFromFile;
             reader.readAsText(files[0]);
         },
 
-        loadConfig(e) {
-            let config = JSON.parse(e.target.result);
-            config.filter = this.toFloat32(config.filter);
-            this.$emit('loadConfig', config);
-            this.$emit('close');
+        loadConfigFromFile(e) {
+            this.config = JSON.parse(e.target.result);
+            this.config.filter = this.toFloat32(this.config.filter);
         },
 
         toFloat32(arr) {
@@ -31,6 +62,11 @@ export default {
                 farr[i] = arr[i];
             }
             return Float32Array.from(farr);
+        },
+
+        load() {
+            this.$emit('loadConfig', this.config);
+            this.$emit('close');
         }
     }
 }
@@ -39,5 +75,19 @@ export default {
 <style scoped>
 div{
     font-size: 14px;
+    color: white;
+    text-align: left;
+    padding: 10px;
+    height: 100%;
+}
+#load-btn {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+select {
+    color: white;
+    background-color: var(--in-bg);
+    border: 2px var(--in-border) inset;
 }
 </style>

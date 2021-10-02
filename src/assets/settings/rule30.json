@@ -1,0 +1,1 @@
+{"reset_type":"center_top","filter":{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":1,"7":2,"8":4},"activation":"\n\t\tfloat activation(float x) {\n\t\tif (x == 1. || x == 2. || x == 3.|| x == 4.){\n\t\t\treturn 1.0;\n\t\t}\n\t\treturn 0.;\n\t\t}\n\t\t","color":[0,0.9333333333333333,1],"persistent":true}

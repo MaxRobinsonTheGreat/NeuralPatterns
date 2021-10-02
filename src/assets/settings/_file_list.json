@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Conway's Game of Life", 
+        "path": "gameoflife.json"
+    },
+    {
+        "name": "Stars",
+        "path": "stars.json"
+    },
+    {
+        "name": "Wolfram's Rule 30",
+        "path": "rule30.json"
+    },
+    {
+        "name": "Pathways",
+        "path": "pathways.json"
+    },
+    {
+        "name": "Lights",
+        "path": "lights.json"
+    },
+    {
+        "name": "Waves",
+        "path": "waves.json"
+    }
+]
