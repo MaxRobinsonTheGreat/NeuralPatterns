@@ -20,15 +20,15 @@ export default {
 	name: 'Renderer',
 	data() {
 		return {
-		canvas: undefined,
-		mouse_down: false,
-		left_click: true,
-		scale: 1,
-		x: 0,
-		y: 0,
-		top: 0,
-		left: 0,
-		pixelated: false
+			canvas: undefined,
+			mouse_down: false,
+			left_click: true,
+			scale: 1,
+			x: 0,
+			y: 0,
+			top: 0,
+			left: 0,
+			pixelated: false
 		} 
 	},
 
@@ -62,44 +62,39 @@ export default {
 			let sign = -Math.sign(e.deltaY);
 			this.scale = Math.max(1, this.scale+(sign*1));
 
-			console.log('mouse', this.x, this.y)
 			if (this.scale > 1) {
 				this.setPixelated(true);
-				// console.log("left", this.left, "top", this.top);
 				if (sign == 1) {
-					// If we're zooming in, zoom towards wherever the mouse is
-
+					// If we're zooming in, zoom towards the mouse is (keep mouse in same location after zoom)
 					let half_w = Math.floor(this.canvas.width/2);
 					let half_h = Math.floor(this.canvas.height/2);
-					this.left = (half_w - this.x) * this.scale;
-					this.top = (half_h - this.y) * this.scale;
+					let prev_scale = this.scale-1;
+					this.left += ((half_w-this.left/prev_scale) - this.x)*prev_scale;
+					this.top += ((half_h-this.top/prev_scale) - this.y)*prev_scale;
+					// camera view should not leave canvas
+					// below clamp will force this, but it is not necessary with the above code
+					// this.left = this.clamp(this.left, -half_w*prev_scale, half_w*prev_scale);
+					// this.top = this.clamp(this.top, -half_h*prev_scale, half_h*prev_scale);
 				}
 				else {
-					// If we're zooming out, zoom out towards the center
-					// let half_w = Math.floor(this.canvas.width/2);
-					// let half_h = Math.floor(this.canvas.height/2);
-					this.left = -this.left/this.scale;
-					this.top = -this.top/this.scale;
+					// If we're zooming out, zoom back out towards the center
+					this.left -= (this.left/this.scale);
+					this.top -= (this.top/this.scale);
 				}
-				// console.log("delta x", delta_x)
-				// const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
-				// let min_l = canvas.width - (canvas.width * this.scale / 2);
-				// let max_l = canvas.width;
-				// let max_t = canvas.height;
-				// console.log(min_l, max_l, delta_l + this.left)
-				// this.left = clamp(delta_l + this.left, min_l, max_l);
-				// this.top = clamp(delta_t + this.top, 0, max_t);
 			}
 			else {
 				this.setPixelated(false);
 				this.left = 0;
 				this.top = 0;
 			}
-			// console.log("final", this.left, this.top)
 			canvas.style.transform = `scale(${this.scale})`;
 			canvas.style.setProperty('left', `${this.left}px`);
 			canvas.style.setProperty('top', `${this.top}px`);
 				
+		},
+
+		clamp(num, min, max) { // unused, could be useful
+			return Math.min(Math.max(num, min), max);
 		},
 
 		setPixelated(p) {
