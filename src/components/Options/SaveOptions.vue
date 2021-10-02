@@ -1,5 +1,8 @@
 <template>
     <div>
+        Save as: <input v-model='filename' id='filename-in'>.json
+        Randomize color on load: <input type='checkbox' v-model='randomcolor'>
+        <br><br>
         <button v-on:click="save">Save and Download</button>
         <a id="download-el" style="display: none;"></a>
     </div>
@@ -11,21 +14,26 @@ import Controller from '../../js/controller'
 
 export default {
     name: 'SaveOptions',
-
+    data() {
+        return {
+            filename: "settings",
+            randomcolor: false
+        }
+    },
     methods: {
         save() {
             let config = {};
-            console.log(Controller.filter)
+            
             config["reset_type"] = Controller.reset_type;
             config["filter"] = Controller.filter;
             config["activation"] = Controller.activationSource;
-            config["color"] = Controller.color;
+            config["color"] = this.randomcolor ? "random": Controller.color;
             config["persistent"] = Controller.renderer.persistent;
 
             let data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config));
             let downloadEl = document.getElementById('download-el');
             downloadEl.setAttribute("href", data);
-            downloadEl.setAttribute("download", "config.json");
+            downloadEl.setAttribute("download", this.filename+".json");
             downloadEl.click();
             this.$emit('close');
         },
@@ -35,6 +43,21 @@ export default {
 
 <style scoped>
 div{
+    padding: 10px;
+    text-align: left;
+    color: white;
     font-size: 14px;
+}
+#filename-in {
+    margin-left: 10px;
+    margin-bottom: 10px;
+    width: 100px;
+    color: white;
+    text-align: center;
+    background-color: var(--in-bg);    
+    border: 2px var(--in-border) inset;
+}
+#filename-in:hover {
+    border: 2px var(--in-border-hover) solid;
 }
 </style>

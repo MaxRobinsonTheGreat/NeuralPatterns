@@ -123,8 +123,10 @@ export default {
             this.$refs.stateSettings.active_button = config.active_button;
             this.$refs.filterSettings.setFilter(config.filter);
             this.$refs.activationSettings.code = config.activation;
-            this.$refs.displaySettings.setColor(config.color);
-
+            if (config.color === "random")
+                this.$refs.displaySettings.randomize();
+            else
+                this.$refs.displaySettings.setColor(config.color);
             Controller.load(config);
         },
         setOpen(open) {

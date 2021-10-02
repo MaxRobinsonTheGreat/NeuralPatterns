@@ -40,7 +40,8 @@ const Controller = {
         this.reset_type = config.reset_type;
         this.filter = config.filter;
         this.activationSource = config.activation;
-        this.color = config.color;
+        if (config.color !== "random")
+            this.color = config.color;
         this.setPersistent(config.persistent);
         this.apply(true);
         this.resetState();
