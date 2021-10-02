@@ -1,6 +1,6 @@
 <template>
     <div>
-        Choose Settings: 
+        Load Settings: 
         <select name="cars" id="cars" v-model="selected" @change="select()">
             <option v-for="(option, i) in options "
                 v-bind:value="option" 

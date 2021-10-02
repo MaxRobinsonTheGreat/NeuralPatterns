@@ -2,12 +2,12 @@
   <div id="app">
     <Settings ref="Settings" @save="save_open=true" @load="load_open=true"/>
     <Renderer/>
-    <OptionsBox  v-if="save_open" title="Save Current Settings" @close="save_open=false">
-		<SaveOptions @close="save_open=false"/>
+    <OptionsBox  v-if="save_open" title="Save Current Settings" @close="closeOptions">
+		<SaveOptions @close="closeOptions"/>
 	</OptionsBox>
-    <OptionsBox  v-if="load_open" title="Load Settings" @close="load_open=false">
+    <OptionsBox  v-if="load_open" title="Load Settings" @close="closeOptions">
 		<LoadOptions 
-			@close="load_open=false"
+			@close="closeOptions"
 			@loadConfig="loadConfig"/>
 	</OptionsBox>
 
@@ -40,6 +40,11 @@ export default {
 	methods: {
 		loadConfig(c) {
 			this.$refs.Settings.loadConfig(c);
+		},
+		closeOptions() {
+			this.save_open=false;
+			this.load_open=false;
+			this.$refs.Settings.setPaused(false);
 		}
 	}
 }

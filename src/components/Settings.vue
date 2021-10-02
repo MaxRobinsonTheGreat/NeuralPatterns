@@ -3,8 +3,8 @@
         <div id="settings-panel" v-show="panel_open">
             <div id='header'>
                 <button id="min-btn" v-on:click="setOpen(false)"><i class="fa fa-minus"></i></button>
-                <button id="save-btn" v-on:click="$emit('save')">Save</button>
-                <button id="load-btn" v-on:click="$emit('load')">Load</button>
+                <button id="save-btn" v-on:click="$emit('save');setPaused(true);">Save</button>
+                <button id="load-btn" v-on:click="$emit('load');setPaused(true);">Load</button>
             </div>
             <div id='accordion'>
                 <AccordionItem title='About'>
@@ -106,6 +106,10 @@ export default {
     methods: {
         pauseToggle() {
             Controller.pauseToggle();
+            this.is_playing = !Controller.paused;
+        },
+        setPaused(paused) {
+            Controller.setPaused(paused);
             this.is_playing = !Controller.paused;
         },
         step() {

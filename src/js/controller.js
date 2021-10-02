@@ -84,7 +84,12 @@ const Controller = {
     },
 
     pauseToggle() {
-        this.paused = !this.paused;
+        this.setPaused(!this.paused)
+    },
+
+    setPaused(paused) {
+        if (this.paused === paused) return;
+        this.paused = paused;
         if (this.paused)
             this.renderer.stopRender();
         else 
