@@ -14,18 +14,18 @@
                 </td>
             </tr>
         </table>
-        <button type='button' v-on:click="randomize()">Randomize Filter</button>
+        <!-- <button type='button' v-on:click="randomize()">Randomize Filter</button> -->
 
         <div id="options">
-            <label for="range">Random Range: </label>
+            <label for="range" :title="range_tooltip">Random Range: </label>
             <input v-model.number="min" type="number" id="range">
-            <input v-model.number="max" type="number"><br>
-
-            <label for="ver_sym" :title="this.ver_tooltip">Vertical Symmetry: </label>
-            <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry()" :title="this.ver_tooltip">
+            <input v-model.number="max" type="number">
             <br>
-            <label for="hor_sym" :title="this.hor_tooltip">Horizontal Symmetry: </label>
-            <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry()" :title="this.hor_tooltip">
+            <label for="ver_sym" :title="ver_tooltip">Vertical Symmetry: </label>
+            <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry()" :title="ver_tooltip">
+            <br>
+            <label for="hor_sym" :title="hor_tooltip">Horizontal Symmetry: </label>
+            <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry()" :title="hor_tooltip">
         </div>
         <WikiSection><ConvolutionWiki/></WikiSection>
         
@@ -54,6 +54,7 @@ export default {
             ver_sym: false,
             hor_sym: false,
             wiki_open: false,
+            range_tooltip: 'Min/max that filter values can be set to when randomizing',
             ver_tooltip: 'Right column filter values mirror left column ones, resulting in a vertically symmetrical update rule',
             hor_tooltip: 'Bottom row filter values mirror top row ones, resulting in a horizontally symmetrical update rule',
         }

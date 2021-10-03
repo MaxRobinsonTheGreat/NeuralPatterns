@@ -1,7 +1,7 @@
 <template>
     <div>
         Load Settings: 
-        <select name="cars" id="cars" v-model="selected" @change="select()">
+        <select v-model="selected" @change="select()">
             <option v-for="(option, i) in options "
                 v-bind:value="option" 
                 :key="i" >
@@ -21,7 +21,7 @@ export default {
     name: 'SaveOptions',
     data() {
         let filelist = require('../../assets/settings/_file_list.json');
-        let options = JSON.parse(JSON.stringify(filelist)); // deep copy, will to modify
+        let options = JSON.parse(JSON.stringify(filelist)); // deep copy, will modify
         options.unshift(    
         {
             "name": "Upload custom...", 

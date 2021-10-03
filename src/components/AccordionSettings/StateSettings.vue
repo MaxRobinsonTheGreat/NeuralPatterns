@@ -9,6 +9,8 @@
         </button>
         <br>
         <button type='button' id='empty' v-on:click="reset('empty')" title='Set all pixels to 0. Hotkey: S'>Clear</button>
+        <br>
+        Reset on randomize: <input id='reset-on-random' type='checkbox' v-model="reset_on_random">
     </div>
 </template>
 
@@ -26,6 +28,7 @@ export default {
                 {type: 'center_top', title: 'Center Top', tooltip: 'A single 1 at the top (wraps to bottom)'}
             ],
             selected_type: Controller.reset_type,
+            reset_on_random: true
         }
     },
 
@@ -45,6 +48,7 @@ export default {
 #state-settings {
     margin-top: 5px;
     margin-bottom: 5px;
+    font-size: 14px;
 }
 
 button:not(#empty) {

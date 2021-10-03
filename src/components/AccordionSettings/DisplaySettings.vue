@@ -5,8 +5,11 @@
 
         <button type='button' v-on:click="randomize()">Randomize Color</button>
         <br>
-        <label for='persistant' :title="this.tooltip">Persistant Pixels: </label>
-        <input id='persistant' type='checkbox' v-model="persistent" :title="this.tooltip" @change="setPersistent()">
+        <label for='persistant' :title="persistent_tooltip">Persistant pixels: </label>
+        <input id='persistant' type='checkbox' v-model="persistent" :title="persistent_tooltip" @change="setPersistent()">
+        <br>
+        <label for='randomize-color' :title="randomize_tooltip">Always randomize color: </label>
+        <input id='randomize-color' type='checkbox' v-model="always_randomize" :title="randomize_tooltip">
     </div>
 </template>
 
@@ -21,7 +24,9 @@ export default {
             rgbColor: [0, 0, 0],
             hexColor: '#000000',
             persistent: false,
-            tooltip: 'If true, once pixel values are set to non-zero values they are permanently fixed.'
+            always_randomize: true,
+            persistent_tooltip: 'If true, once pixel values are set to non-zero values they are permanently fixed',
+            randomize_tooltip: 'If true, the color is randomized when the bottom "Randomize" button is pressed'
         }
     },
 

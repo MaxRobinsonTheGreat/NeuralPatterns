@@ -117,7 +117,10 @@ export default {
         },
         randomize() {
             this.$refs.filterSettings.randomize();
-            this.$refs.displaySettings.randomize();
+            if (this.$refs.displaySettings.always_randomize)
+                this.$refs.displaySettings.randomize();
+            if (this.$refs.stateSettings.reset_on_random)
+                this.reset();
         },
         reset() {
             this.$refs.stateSettings.reset();
@@ -197,7 +200,7 @@ export default {
     float: right;
 }
 
-#min-btn, #pause-btn, #step-btn, #settings-btn, #randomize-btn, #reset-btn {
+#min-btn, #pause-btn, #step-btn, #settings-btn, #randomize-btn, #reset-btn, #save-btn, #load-btn  {
     height: 40px;
     font-size: 15px;
 }
