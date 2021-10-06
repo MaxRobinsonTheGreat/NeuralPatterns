@@ -11,6 +11,8 @@
 			@loadConfig="loadConfig"/>
 	</OptionsBox>
 
+	<FooterMessage message="**EPILEPSY WARNING** Some patterns can contain rapid flashing lights"/>
+
   </div>
 </template>
 
@@ -22,6 +24,8 @@ import OptionsBox from './components/Options/OptionsBox.vue'
 import SaveOptions from './components/Options/SaveOptions.vue'
 import LoadOptions from './components/Options/LoadOptions.vue'
 
+import FooterMessage from './components/FooterMessage.vue'
+
 document.title = "Neural Patterns";
 
 export default {
@@ -31,7 +35,8 @@ export default {
 		Settings,
 		OptionsBox,
 		SaveOptions,
-		LoadOptions
+		LoadOptions,
+		FooterMessage
 	},
 	data() {
 		return {
