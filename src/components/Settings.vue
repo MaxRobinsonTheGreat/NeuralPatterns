@@ -3,7 +3,7 @@
         <div id="settings-panel" v-show="panel_open">
             <div id='header'>
                 <button id="min-btn" v-on:click="setOpen(false)"><i class="fa fa-minus"></i></button>
-                <button id="save-btn" v-on:click="$emit('save');setPaused(true);">Save</button>
+                <button id="save-btn" v-on:click="$emit('save');setPaused(true);" v-if="!IsMobile">Save</button>
                 <button id="load-btn" v-on:click="$emit('load');setPaused(true);">Load</button>
             </div>
             <div id='accordion'>
@@ -35,9 +35,16 @@
                 <button id='reset-btn' v-on:click="reset()" title='Reset pixel values. Hotkey: D'>Reset State</button>
             </div>
         </div>
-        <button id='settings-btn' v-on:click="setOpen(true)" v-show="!panel_open">
-            <i class="fa fa-gear"></i>
-        </button>
+        <div id="hotbar" v-show="!panel_open">
+            <button id='settings-btn' v-on:click="setOpen(true)">
+                <i class="fa fa-gear"></i>
+            </button>
+            <button id='pause-btn-hot' v-on:click="pauseToggle()" title='Pause/Play. Hotkey: Spacebar'>
+                <i class="fa fa-pause" v-if=is_playing></i>
+                <i class="fa fa-play" v-else></i>
+            </button>
+            <button id='randomize-btn-hot' v-on:click="randomize()" title='Randomize filter and color. Hotkey: F'>Randomize</button>
+        </div>
 
     </div>
 </template>
@@ -45,6 +52,7 @@
 <script>
 import Utils from '../js/utils'
 import Controller from '../js/controller'
+import IsMobile from '../js/ismobile'
 
 import AccordionItem from './AccordionSettings/AccordionItem'
 import About from './AccordionSettings/About'
@@ -68,7 +76,8 @@ export default {
         return {
             filter: Utils.randomKernel(),
             is_playing: true,
-            panel_open: true,
+            panel_open: !IsMobile,
+            IsMobile: IsMobile
         }
     },
     mounted() {
@@ -205,12 +214,16 @@ export default {
     font-size: 15px;
 }
 
-#settings-btn {
+#hotbar {
     position: fixed;
     z-index: 1;
-    left: 0;
-    width: 40px;
-    margin: 10px;
+    left: 10px;
+    top: 10px;
+}
+#settings-btn, #pause-btn-hot, #randomize-btn-hot {
+    height: 40px;
+    min-width: 40px;
+    margin-top: 0px;
 }
 
 </style>

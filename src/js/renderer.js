@@ -3,8 +3,6 @@ import Shaders from './shaders'
 class Renderer {
 	constructor(canvas) {
 		this.canvas = canvas;
-		canvas.height = window.innerHeight;
-		canvas.width = window.innerWidth;
 		this.height = canvas.height;
 		this.width = canvas.width;
 		

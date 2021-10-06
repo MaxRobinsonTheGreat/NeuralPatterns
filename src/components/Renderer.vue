@@ -6,6 +6,9 @@
 		v-on:mouseup="mouseup"
 		v-on:mousemove="mousemove"
 		v-on:mousedown="mousedown"
+		v-on:touchstart="mousedown"
+		v-on:touchend="mouseup"
+		v-on:touchmove="touchmove"
 		v-on:onwheel="onwheel"
 		oncontextmenu="return false;"
 		></canvas>
@@ -52,6 +55,14 @@ export default {
 			this.y = event.offsetY;
 			if (this.mouse_down)
 				Controller.renderer.poke(this.x, this.y, this.left_click);
+		},
+		touchmove(event) {
+			// if (event.targetTouches.length !== 1) return;
+			event.preventDefault(); 
+			this.x = event.targetTouches[0].clientX;
+			this.y = event.targetTouches[0].clientY;
+			if (this.mouse_down)
+				Controller.renderer.poke(this.x, this.y, true);
 		},
 
 		onwheel(e) {

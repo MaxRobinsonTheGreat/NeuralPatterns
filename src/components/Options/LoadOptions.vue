@@ -17,16 +17,19 @@
 
 <script>
 
+import IsMobile from '../../js/ismobile'
+
 export default {
     name: 'SaveOptions',
     data() {
         let filelist = require('../../assets/settings/_file_list.json');
         let options = JSON.parse(JSON.stringify(filelist)); // deep copy, will modify
-        options.unshift(    
-        {
-            "name": "Upload custom...", 
-            "isCustom": true
-        });
+        if (!IsMobile)
+            options.unshift(
+            {
+                "name": "Upload custom...", 
+                "isCustom": true
+            });
         return {
             selected: undefined,
             config: undefined,

@@ -4,7 +4,7 @@
         <div id='box'>
             <div id='header'>
                 {{this.title}}
-                <button id="load-btn" v-on:click="close"><i class="fa fa-times" ></i></button>
+                <button id="close-btn" v-on:click="close"><i class="fa fa-times" ></i></button>
             </div>
             <slot id='content'></slot>
         </div>
@@ -63,7 +63,7 @@ export default {
     margin: 0px;
     border-bottom: 1px solid rgb(126, 126, 126);
 }
-button {
+#close-btn {
     margin: 0px;
     width: 30px;
     height: 30px;

@@ -1,6 +1,7 @@
 import Utils from './utils'
 import Renderer from '../js/renderer';
 import Shaders from '../js/shaders';
+import IsMobile from '../js/ismobile';
 
 const Controller = {
     init() {
@@ -21,12 +22,16 @@ const Controller = {
         renderer.beginRender();
         this.renderer = renderer;
 
+        function nearestPow2(n){
+            return Math.pow(2, Math.ceil(Math.log(n) / Math.log(2))); 
+        }
+
         window.onresize = () => {
 			if (window.innerWidth === this.renderer.width && window.innerHeight === this.renderer.height)
 				return;
 			this.renderer.stopRender();
-			canvas.height = window.innerHeight;
-			canvas.width = window.innerWidth;
+			canvas.height = IsMobile ? nearestPow2(window.innerHeight) : window.innerHeight;
+			canvas.width = IsMobile? nearestPow2(window.innerWidth) : window.innerWidth;
 			this.renderer.height = canvas.height;
 			this.renderer.width = canvas.width;
 			this.renderer.gl.viewport(0, 0, this.renderer.width, this.renderer.height);
@@ -34,6 +39,7 @@ const Controller = {
             if (!this.paused)
                 this.renderer.beginRender();
 		};
+        window.onresize();
     }, 
 
     load(config) {

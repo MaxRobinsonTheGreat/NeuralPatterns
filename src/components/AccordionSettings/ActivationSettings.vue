@@ -1,13 +1,13 @@
 <template>
-    <div>
-        <codemirror v-model='code' ref='editor' :options="{
-            viewportMargin: Infinity,
-            theme: 'glsl',
-            mode: 'glsl',
-        }"></codemirror>
-        <div id='error'> {{this.error}} </div>
-        <WikiSection><ActivationWiki/></WikiSection>
-    </div>
+	<div>
+		<codemirror v-model='code' ref='editor' :options="{
+			viewportMargin: Infinity,
+			theme: 'glsl',
+			mode: 'glsl',
+		}"></codemirror>
+		<div id='error'> {{this.error}} </div>
+		<WikiSection><ActivationWiki/></WikiSection>
+	</div>
 </template>
 
 <script>
@@ -23,74 +23,74 @@ require('./glslmode')(CodeMirror);
 let toggleComment = require('codemirror/addon/comment/comment.js');
 toggleComment // using it so linting doesn't get mad
 function toggleGLSLComment(cm) {
-    cm.toggleComment({
-        indent: true,
-        lineComment: '//',
-    });
+	cm.toggleComment({
+		indent: true,
+		lineComment: '//',
+	});
 }
 
 export default {
-    name: 'ActivationSettings',
-    components: {
-        codemirror,
-        ActivationWiki,
-        WikiSection
-    },
-    mounted() {
-        this.$refs.editor.editor.setOption('extraKeys', {
-            'Cmd-/': toggleGLSLComment,
-            'Ctrl-/': toggleGLSLComment
-        });
-        setTimeout(()=>{
-            this.$refs.editor.editor.refresh();
-        }, 1000)
-    },
-    data() {
-        return {
-            code: Controller.activationSource,
-            error: ''
-        }
-    },
+	name: 'ActivationSettings',
+	components: {
+		codemirror,
+		ActivationWiki,
+		WikiSection
+	},
+	mounted() {
+		this.$refs.editor.editor.setOption('extraKeys', {
+			'Cmd-/': toggleGLSLComment,
+			'Ctrl-/': toggleGLSLComment
+		});
+		setTimeout(()=>{
+			this.$refs.editor.editor.refresh();
+		}, 1000)
+	},
+	data() {
+		return {
+			code: Controller.activationSource,
+			error: ''
+		}
+	},
 
-    methods: {
-        parseError(error) {
-            if (error) {
-                error = error.substring(0, error.length-1);
-                if (error.includes('float') && error.includes('int')){
-                    error = '(Use 1. instead of 1 for floats) '.concat(error);
-                }
-                this.error = error;
-            }
-            else {
-                this.error = '';
-            }
-        }
-    },
+	methods: {
+		parseError(error) {
+			if (error) {
+				error = error.substring(0, error.length-1);
+				if (error.includes('float') && error.includes('int')){
+					error = '(Use 1. instead of 1 for floats) '.concat(error);
+				}
+				this.error = error;
+			}
+			else {
+				this.error = '';
+			}
+		}
+	},
 
-    watch: {
-        code() {
-            if (this.pendingSetCode) {
-                clearTimeout(this.pendingSetCode);
-            }
+	watch: {
+		code() {
+			if (this.pendingSetCode) {
+				clearTimeout(this.pendingSetCode);
+			}
 
-            this.pendingSetCode = setTimeout(() => {
-                Controller.activationSource = this.code;
-                let error = Controller.apply(true);
-                this.parseError(error);
-                this.pendingSetCode = 0;
-            }, 500);
-        }
-    }
+			this.pendingSetCode = setTimeout(() => {
+				Controller.activationSource = this.code;
+				let error = Controller.apply(true);
+				this.parseError(error);
+				this.pendingSetCode = 0;
+			}, 500);
+		}
+	}
 }
 
 </script>
 
 <style scoped>
 #error {
-    margin: 5px;
-    text-align: left;
-    color: rgb(255, 0, 0);
-    font-size: 14px;
-    font-family: Consolas, 'SourceCodePro-Medium', monaco, monospace;
+	margin: 5px;
+	text-align: left;
+	color: rgb(255, 0, 0);
+	font-size: 14px;
+	font-family: Consolas, 'SourceCodePro-Medium', monaco, monospace;
 }
 </style>
