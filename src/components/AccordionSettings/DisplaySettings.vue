@@ -26,7 +26,7 @@ export default {
             persistent: false,
             always_randomize: true,
             persistent_tooltip: 'If true, once pixel values are set to non-zero values they are permanently fixed',
-            randomize_tooltip: 'If true, the color is randomized when the bottom "Randomize" button is pressed'
+            randomize_tooltip: 'If true, the color is randomized when the "Randomize" button is pressed'
         }
     },
 

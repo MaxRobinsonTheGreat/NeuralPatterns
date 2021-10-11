@@ -12,6 +12,8 @@
             <input id="uploadFile" type="file" @change="uploadFile" v-if="uploadingCustom">
         </div>
         <button id="load-btn" @click="load" v-if="can_load">Load</button>
+        <label for='reset_on_load' :title="reset_on_load">Reset on load: </label>
+        <input id='reset_on_load' type='checkbox' v-model="reset_on_load">
     </div>
 </template>
 
@@ -36,6 +38,7 @@ export default {
             uploadingCustom: false,
             options,
             can_load: false,
+            reset_on_load: true,
         };
     },
 
@@ -71,7 +74,7 @@ export default {
         },
 
         load() {
-            this.$emit('loadConfig', this.config);
+            this.$emit('loadConfig', this.config, this.reset_on_load);
             this.$emit('close');
         }
     }

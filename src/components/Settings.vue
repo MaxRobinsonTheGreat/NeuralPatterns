@@ -134,7 +134,7 @@ export default {
         reset() {
             this.$refs.stateSettings.reset();
         },
-        loadConfig(config) {
+        loadConfig(config, reset) {
             this.$refs.stateSettings.persistent = config.persistent;
             this.$refs.stateSettings.active_button = config.active_button;
             this.$refs.filterSettings.setFilter(config.filter);
@@ -144,7 +144,7 @@ export default {
             else
                 this.$refs.displaySettings.setColor(config.color);
             this.$refs.displaySettings.persistent = config.persistent;
-            Controller.load(config);
+            Controller.load(config, reset);
         },
         setOpen(open) {
             this.panel_open=open;

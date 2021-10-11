@@ -42,7 +42,7 @@ const Controller = {
         window.onresize();
     }, 
 
-    load(config) {
+    load(config, reset) {
         this.reset_type = config.reset_type;
         this.filter = config.filter;
         this.activationSource = config.activation;
@@ -50,7 +50,8 @@ const Controller = {
             this.color = config.color;
         this.setPersistent(config.persistent);
         this.apply(true);
-        this.resetState();
+        if (reset)
+            this.resetState();
     },
 
     setRenderer(r) {

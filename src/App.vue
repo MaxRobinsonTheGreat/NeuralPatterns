@@ -45,8 +45,8 @@ export default {
 		}
 	},
 	methods: {
-		loadConfig(c) {
-			this.$refs.Settings.loadConfig(c);
+		loadConfig(c, reset) {
+			this.$refs.Settings.loadConfig(c, reset);
 		},
 		closeOptions() {
 			this.save_open=false;
