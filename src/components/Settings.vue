@@ -137,6 +137,7 @@ export default {
         loadConfig(config, reset) {
             this.$refs.stateSettings.persistent = config.persistent;
             this.$refs.stateSettings.active_button = config.active_button;
+            this.$refs.filterSettings.clearSymmetry();
             this.$refs.filterSettings.setFilter(config.filter);
             this.$refs.activationSettings.code = config.activation;
             if (config.color === "random")

@@ -91,9 +91,15 @@ export default {
             Controller.apply();
         },
 
+        clearSymmetry() {
+            this.hor_sym = false;
+            this.ver_sym = false;
+            this.setSymmetry();
+        },
+
         setSymmetry() {
             let f = Controller.filter;
-            let disabled = [];
+            let disabled = []; // indexes of disabled values
             if (this.hor_sym){
                 f = Utils.hSymmetry(f);
                 disabled.push(...[6, 7, 8]);
@@ -127,12 +133,12 @@ export default {
         },
 
         setFilter(f) {
-            // c limits floats to 4 decimals without trailing zeros
+            // c formats floats to 4 decimals without trailing zeros
             const c = (i) => { return parseFloat(f[i].toFixed(4)) }
 
-            Vue.set(this.filter, 0, {id:0, vals:[c(0), c(1), c(2)]});
+            Vue.set(this.filter, 2, {id:0, vals:[c(0), c(1), c(2)]});
             Vue.set(this.filter, 1, {id:1, vals:[c(3), c(4), c(5)]});
-            Vue.set(this.filter, 2, {id:2, vals:[c(6), c(7), c(8)]});
+            Vue.set(this.filter, 0, {id:2, vals:[c(6), c(7), c(8)]});
             return this.filter;
         },
     }

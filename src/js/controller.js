@@ -66,7 +66,9 @@ const Controller = {
             return error;
         }
         else {
-            return this._apply(recompile);
+            let error =  this._apply(recompile);
+            this.renderer.applyValues();
+            return error;
         }
     },
 
@@ -74,6 +76,7 @@ const Controller = {
         this.renderer.setKernel(this.filter);
         this.renderer.setColor(this.color);
         this.renderer.activationSource = this.activationSource;
+        
         if (recompile)
             return this.renderer.recompile();
         return null;

@@ -197,17 +197,21 @@ class Renderer {
 	}
 
 	beginRender(){
-		let gl = this.gl;
 		if (this.running)
 			throw 'called beginRender() when already rendering'
 		this.running = true;
-
+		let gl = this.gl;
 		gl.uniform2f(this.onePixelAttr, 1/this.width, 1/this.height);
 		gl.uniform1f(this.doStepAttr, true);
-        gl.uniform1fv(this.kernelAttr, this.kernel);
-		gl.uniform4f(this.colorMaskAttr, this.colorMask.r, this.colorMask.g, this.colorMask.b, 1.0);
+        this.applyValues();
 
 		this.render();
+	}
+
+	applyValues(){
+		let gl = this.gl;
+        gl.uniform1fv(this.kernelAttr, this.kernel);
+		gl.uniform4f(this.colorMaskAttr, this.colorMask.r, this.colorMask.g, this.colorMask.b, 1.0);
 	}
 
 	stopRender(){

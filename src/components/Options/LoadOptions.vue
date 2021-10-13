@@ -46,7 +46,8 @@ export default {
         select() {
             this.uploadingCustom = this.selected.isCustom;
             if (!this.uploadingCustom) {
-                this.config = require('../../assets/settings/'+this.selected.path);
+                let config = require('../../assets/settings/'+this.selected.path);
+                this.config = JSON.parse(JSON.stringify(config))
                 this.config.filter = this.toFloat32(this.config.filter);
                 this.can_load = true;
             }
