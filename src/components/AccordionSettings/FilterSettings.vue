@@ -136,9 +136,9 @@ export default {
             // c formats floats to 4 decimals without trailing zeros
             const c = (i) => { return parseFloat(f[i].toFixed(4)) }
 
-            Vue.set(this.filter, 2, {id:0, vals:[c(0), c(1), c(2)]});
+            Vue.set(this.filter, 0, {id:0, vals:[c(0), c(1), c(2)]});
             Vue.set(this.filter, 1, {id:1, vals:[c(3), c(4), c(5)]});
-            Vue.set(this.filter, 0, {id:2, vals:[c(6), c(7), c(8)]});
+            Vue.set(this.filter, 2, {id:2, vals:[c(6), c(7), c(8)]});
             return this.filter;
         },
     }
