@@ -5,6 +5,10 @@
 
         <button type='button' v-on:click="randomize()">Randomize Color</button>
         <br>
+        <label for='skip' :title="skip_tooltip">Skip Frames: </label>
+        <input id='skip' type='checkbox' v-model="skip_frames" :title="skip_tooltip" @change="setSkipFrames()">
+        <button type='button' v-if="skip_frames" v-on:click="changeSkippedFrame()">Skip {{even_odd_txt}} frames</button>
+        <br>
         <label for='persistent' :title="persistent_tooltip">Persistent pixels: </label>
         <input id='persistent' type='checkbox' v-model="persistent" :title="persistent_tooltip" @change="setPersistent()">
         <br>
@@ -23,10 +27,15 @@ export default {
         return {
             rgbColor: [0, 0, 0],
             hexColor: '#000000',
+            skip_frames: false,
             persistent: false,
             always_randomize: true,
+            skip_tooltip: `If true, every other frame won't render, which helps reduce flashing.`,
+            even_odd_tooltip: `Switches which frame is skipped`,
+            even_odd_txt: 'even',
             persistent_tooltip: 'If true, once pixel values are set to non-zero values they are permanently fixed',
-            randomize_tooltip: 'If true, the color is randomized when the "Randomize" button is pressed'
+            randomize_tooltip: 'If true, the color is randomized when the "Randomize" button is pressed',
+
         }
     },
 
@@ -70,6 +79,15 @@ export default {
         
         setPersistent() {
             Controller.setPersistent(this.persistent)
+        },
+
+        setSkipFrames() {
+            Controller.renderer.skip_frames = this.skip_frames;
+        },
+
+        changeSkippedFrame() {
+            Controller.offsetSkippedFrame();
+            this.even_odd_txt = this.even_odd_txt === 'odd' ? 'even' : 'odd';
         }
     }
 }
@@ -87,7 +105,7 @@ export default {
     border: 1px black solid;
 }
 
-#persistent {
+#skip {
     margin-top: 10px;
 }
 

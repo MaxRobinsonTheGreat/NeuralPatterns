@@ -11,6 +11,7 @@ class Renderer {
 		this.setBrush(5, 1);
 		this.activationSource = '';
 		this.persistent = false;
+		this.skip_frames = false;
 	}
 
 	compileShaders(vertexSource, fragSource, activationSource=undefined) {
@@ -220,6 +221,20 @@ class Renderer {
 	}
 
 	render(){
+		this.updateState()
+		if (this.skip_frames) {
+			this.updateState();
+		}
+
+		this.updateDisplay();
+
+		if(this.running){
+			this.updaterequest = window.requestAnimationFrame(()=>{this.render();});
+			// setTimeout(()=>{this.render();}, 80); // set render speed
+		}
+	}
+
+	updateState() {
 		let gl = this.gl;
 		gl.uniform1f(this.doStepAttr, true);
 
@@ -235,13 +250,6 @@ class Renderer {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this.fba);
 		gl.drawArrays(gl.TRIANGLES, 0, this.size);
 		gl.bindTexture(gl.TEXTURE_2D, this.txa);
-
-		this.updateDisplay();
-
-		if(this.running){
-			this.updaterequest = window.requestAnimationFrame(()=>{this.render();});
-			// setTimeout(()=>{this.render();}, 0); // set render speed
-		}
 	}
 
 	updateDisplay() {
