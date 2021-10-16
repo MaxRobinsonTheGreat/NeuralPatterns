@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div id="settings-panel" v-show="panel_open">
+        <div id="settings-panel" v-show="panel_open&&!hide_settings">
             <div id='header'>
                 <button id="min-btn" v-on:click="setOpen(false)"><i class="fa fa-minus"></i></button>
                 <button id="save-btn" v-on:click="$emit('save');setPaused(true);" v-if="!IsMobile">Save</button>
@@ -35,7 +35,7 @@
                 <button id='reset-btn' v-on:click="reset()" title='Reset pixel values. Hotkey: D'>Reset State</button>
             </div>
         </div>
-        <div id="hotbar" v-show="!panel_open">
+        <div id="hotbar" v-show="!panel_open&&!hide_settings">
             <button id='settings-btn' v-on:click="setOpen(true)">
                 <i class="fa fa-gear"></i>
             </button>
@@ -70,14 +70,15 @@ export default {
         StateSettings,
         FilterSettings,
         DisplaySettings,
-        ActivationSettings
+        ActivationSettings,
     },
     data() {
         return {
             filter: Utils.randomKernel(),
             is_playing: true,
             panel_open: !IsMobile,
-            IsMobile: IsMobile
+            IsMobile: IsMobile,
+            hide_settings: false,
         }
     },
     mounted() {
@@ -106,6 +107,10 @@ export default {
                     case('a'): {
                         if (!this.is_playing)
                             this.step();
+                        break;
+                    }
+                    case('v'): {
+                        this.hide_settings = !this.hide_settings;
                         break;
                     }
                 }
