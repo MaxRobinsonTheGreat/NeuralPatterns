@@ -35,4 +35,8 @@ div {
     white-space: nowrap;
     width: 50px;
 }
+#icon:hover {
+    /* display: inline-block; */
+    color: rgb(255, 208, 0);
+}
 </style>

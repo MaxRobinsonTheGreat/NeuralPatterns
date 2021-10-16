@@ -95,9 +95,4 @@ div{
     right: 10px;
     bottom: 10px;
 }
-select {
-    color: white;
-    background-color: var(--in-bg);
-    border: 2px var(--in-border) inset;
-}
 </style>

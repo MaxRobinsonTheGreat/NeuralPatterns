@@ -6,6 +6,15 @@
 			mode: 'glsl',
 		}"></codemirror>
 		<div id='error'> {{this.error}} </div>
+		<div id='dropdown'>
+				Activation Functions: <select v-model="selected" @change="select()">
+				<option v-for="(activation, i) in activations "
+					v-bind:value="activation" 
+					:key="i" >
+					{{activation.name}}
+				</option>
+			</select>
+		</div>
 		<WikiSection><ActivationWiki/></WikiSection>
 	</div>
 </template>
@@ -43,12 +52,17 @@ export default {
 		});
 		setTimeout(()=>{
 			this.$refs.editor.editor.refresh();
-		}, 1000)
+		}, 1000);
 	},
 	data() {
+		let activations = require('../../assets/activations.json');
+        activations = JSON.parse(JSON.stringify(activations)); // deep copy, will modify
 		return {
 			code: Controller.activationSource,
-			error: ''
+			error: '',
+			selected: activations[0],
+			activations,
+			ignore_change: false,
 		}
 	},
 
@@ -64,11 +78,20 @@ export default {
 			else {
 				this.error = '';
 			}
+		},
+
+		select() {
+			this.ignore_change = true;
+			this.code = JSON.parse(JSON.stringify(this.selected.code));
 		}
 	},
 
 	watch: {
 		code() {
+			if (this.ignore_change)
+				this.ignore_change = false;
+			else
+				this.selected = undefined;
 			if (this.pendingSetCode) {
 				clearTimeout(this.pendingSetCode);
 			}
@@ -86,6 +109,13 @@ export default {
 </script>
 
 <style scoped>
+
+#dropdown {
+	font-size: 14px;
+	text-align: left;
+	margin: 10px;
+}
+
 #error {
 	margin: 5px;
 	text-align: left;

@@ -1,0 +1,26 @@
+[
+    {
+        "name" : "Identity (default)",
+        "code" : "float activation(float x) {\n  return x;\n}"
+    },
+    {
+        "name" : "sin",
+        "code" : "float activation(float x) {\n  return sin(x);\n}"
+    },
+    {
+        "name" : "power",
+        "code" : "float activation(float x) {\n  return pow(x, 2.);\n}"
+    },
+    {
+        "name" : "absolute value",
+        "code" : "float activation(float x) {\n  return abs(x);\n}"
+    },
+    {
+        "name" : "tanh",
+        "code" : "float activation(float x) {\n  return (exp(2.*x)-1.)/(exp(2.*x)+1.);\n}"
+    },
+    {
+        "name" : "gaussian",
+        "code" : "float activation(float x) {\n  return 1./pow(2., (pow(x, 2.)));\n}"
+    }
+]

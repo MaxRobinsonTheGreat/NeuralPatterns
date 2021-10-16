@@ -128,5 +128,11 @@ a:visited {
 	color: rgb(216, 116, 255);
 }
 
+select {
+    color: white;
+    background-color: var(--in-bg);
+    border: 2px var(--in-border) inset;
+}
+
 </style>
 
