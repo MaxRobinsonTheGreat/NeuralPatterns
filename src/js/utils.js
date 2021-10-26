@@ -70,7 +70,7 @@ const Utils = {
         return color;
     },
 
-    randomKernel(min=-1, max=1, h_symmetry=false, v_symmetry=false) {
+    randomKernel(min=-1, max=1, h_symmetry=false, v_symmetry=false, d_symmetry=false) {
         let range = max - min;
         let kernel = new Float32Array(9);
     
@@ -82,6 +82,8 @@ const Utils = {
 			kernel = this.hSymmetry(kernel);
         if (v_symmetry)
             kernel = this.vSymmetry(kernel);
+		if (d_symmetry)
+            kernel = this.dSymmetry(kernel);
         return kernel;
     },
 
@@ -96,6 +98,14 @@ const Utils = {
 		k[2] = k[0];
 		k[5] = k[3];
 		k[8] = k[6];
+		return k;
+	},
+
+	dSymmetry(k) {
+		k[3] = k[1];
+		k[5] = k[1];
+		k[7] = k[1];
+
 		return k;
 	}
 }

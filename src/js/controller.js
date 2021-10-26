@@ -32,8 +32,8 @@ const Controller = {
 			this.renderer.stopRender();
 			canvas.height = IsMobile ? nearestPow2(window.innerHeight) : window.innerHeight;
 			canvas.width = IsMobile? nearestPow2(window.innerWidth) : window.innerWidth;
-            // canvas.height = 512;
-			// canvas.width = 1024;
+            // canvas.height = 256;
+			// canvas.width = 512;
 			this.renderer.height = canvas.height;
 			this.renderer.width = canvas.width;
 			this.renderer.gl.viewport(0, 0, this.renderer.width, this.renderer.height);

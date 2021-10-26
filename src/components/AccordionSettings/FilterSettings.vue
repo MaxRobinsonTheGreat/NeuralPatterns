@@ -6,6 +6,7 @@
                     <input 
                         class="filter-val"
                         :value="val"
+                        step="0.001"
                         ref="filterInputs"
                         @change="updateFilter($event, row, i)"  
                         @focus="$event.target.select()"
@@ -18,14 +19,17 @@
 
         <div id="options">
             <label for="range" :title="range_tooltip">Random Range: </label>
-            <input v-model.number="min" type="number" id="range">
-            <input v-model.number="max" type="number">
+            <input v-model.number="min" class="range" type="number" id="range">
+            <input v-model.number="max" class="range" type="number">
             <br>
-            <label for="ver_sym" :title="ver_tooltip">Vertical Symmetry: </label>
             <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry()" :title="ver_tooltip">
+            <label for="ver_sym" :title="ver_tooltip">Vertical Symmetry</label>
             <br>
-            <label for="hor_sym" :title="hor_tooltip">Horizontal Symmetry: </label>
             <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry()" :title="hor_tooltip">
+            <label for="hor_sym" :title="hor_tooltip">Horizontal Symmetry</label>
+            <br>
+            <input v-model="diag_sym" id="diag_sym" type="checkbox" @change="setSymmetry()" :title="hor_tooltip">
+            <label for="diag_sym" :title="hor_tooltip">Diagonal Symmetry</label>
         </div>
         <WikiSection><ConvolutionWiki/></WikiSection>
         
@@ -53,6 +57,7 @@ export default {
             max: 1,
             ver_sym: false,
             hor_sym: false,
+            diag_sym: false,
             wiki_open: false,
             range_tooltip: 'Min/max that filter values can be set to when randomizing',
             ver_tooltip: 'Right column filter values mirror left column ones, resulting in a vertically symmetrical update rule',
@@ -79,13 +84,14 @@ export default {
             val = val ? val : 0;
             let index = parseInt(row.id)*3 + i;
             Controller.filter[index] = parseFloat(val);
-            this.enforceSymmetry();
+            Controller.filter = this.enforceSymmetry(Controller.filter);
             this.setFilter(Controller.filter)
             Controller.apply();
         },
 
         randomize() {
             let filter = Utils.randomKernel(this.min, this.max, this.hor_sym, this.ver_sym);
+            filter = this.enforceSymmetry(filter);
             this.setFilter(filter);
             Controller.filter = filter;
             Controller.apply();
@@ -108,6 +114,10 @@ export default {
                 f = Utils.vSymmetry(f);
                 disabled.push(...[2, 5, 8]);
             }
+            if (this.diag_sym) {
+                f = Utils.dSymmetry(f);
+                disabled.push(...[3, 5, 7]);
+            }
             for (let input of this.$refs.filterInputs) {
                 input.disabled = false; // re enable all inputs
             }
@@ -121,20 +131,19 @@ export default {
             this.setFilter(Controller.filter);
         },
 
-        enforceSymmetry() {
-            let f = Controller.filter;
-            if (this.hor_sym){
+        enforceSymmetry(f) {
+            if (this.hor_sym)
                 f = Utils.hSymmetry(f);
-            }
-            if (this.ver_sym) {
+            if (this.ver_sym)
                 f = Utils.vSymmetry(f);
-            }
-            Controller.kernel = f;
+            if (this.diag_sym)
+                f = Utils.dSymmetry(f);
+            return f;
         },
 
         setFilter(f) {
             // c formats floats to 4 decimals without trailing zeros
-            const c = (i) => { return parseFloat(f[i].toFixed(4)) }
+            const c = (i) => { return parseFloat(f[i].toFixed(3)) }
 
             Vue.set(this.filter, 0, {id:0, vals:[c(0), c(1), c(2)]});
             Vue.set(this.filter, 1, {id:1, vals:[c(3), c(4), c(5)]});
@@ -153,7 +162,6 @@ table {
 }
 
 input {
-    width: 50px;
     color: white;
     text-align: center;
     background-color: var(--in-bg);
@@ -168,27 +176,32 @@ input:hover:enabled {
     border: 2px var(--in-border-hover) solid;
 }
 
+.filter-val {
+    width: 55px;
+}
+
 .filter-val:disabled {
     color: gray;
 }
 
-.filter-val::-webkit-outer-spin-button,
+/* .filter-val::-webkit-outer-spin-button,
 .filter-val::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
 /* Firefox */
-.filter-val[type=number] {
+/* .filter-val[type=number] {
   -moz-appearance: textfield;
-}
+} */
 
 #options {
     text-align: left;
     margin-left: 10px;
 }
 
-#range {
+.range {
+    width: 50px;
     margin-top: 5px;
     margin-bottom: 5px;
 }
