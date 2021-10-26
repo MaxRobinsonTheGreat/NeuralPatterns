@@ -12,6 +12,10 @@
         "path": "stars.json"
     },
     {
+        "name": "Worms",
+        "path": "worms.json"
+    },
+    {
         "name": "Fabric",
         "path": "fabric.json"
     },
