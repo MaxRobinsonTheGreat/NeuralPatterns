@@ -26,5 +26,9 @@
     {
         "name": "Pathways",
         "path": "pathways.json"
+    },
+    {
+        "name": "Particles",
+        "path": "particles.json"
     }
 ]

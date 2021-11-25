@@ -1,0 +1,1 @@
+{"reset_type":"random","filter":{"0":0,"1":-1,"2":0,"3":0.998,"4":0.01,"5":0.998,"6":0,"7":-1,"8":0},"activation":"float activation(float x) {\n  return 0.995*(abs(x) - 0.005);\n}\t","color":[0.280991723105,0.332481652833,0.8680746840468112695],"persistent":false}
