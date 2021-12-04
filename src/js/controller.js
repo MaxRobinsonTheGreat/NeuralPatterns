@@ -90,6 +90,11 @@ const Controller = {
         this.renderer.setState(state);
     },
 
+    setColor(color) {
+        this.color = color;
+        this.renderer.setColor(color);
+    },
+
     setPersistent(c) {
         this.renderer.persistent = c;
         this.apply(true);

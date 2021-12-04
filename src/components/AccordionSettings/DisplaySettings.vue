@@ -55,8 +55,7 @@ export default {
         },
 
         changeColor() {
-            Controller.color = this.hexToRgb(this.hexColor);
-            Controller.apply(); // apply is broken, need to fix
+            Controller.setColor(this.hexToRgb(this.hexColor));
         },
 
         setColor(col) {
