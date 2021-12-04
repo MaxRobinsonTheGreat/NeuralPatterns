@@ -10,7 +10,7 @@
                 <AccordionItem title='About'>
                     <About/>
                 </AccordionItem>
-                <AccordionItem title='Reset Options'>
+                <AccordionItem title='Restart Options'>
                     <StateSettings ref='stateSettings'/>
                 </AccordionItem>
                 <AccordionItem title='Filter' :start_open=true>
@@ -32,7 +32,7 @@
                     <i class="fa fa-step-forward"></i>
                 </button>
                 <button id='randomize-btn' v-on:click="randomize()" title='Randomize filter and color. Hotkey: F'>Randomize</button>
-                <button id='reset-btn' v-on:click="reset()" title='Reset pixel values. Hotkey: D'>Reset State</button>
+                <button id='reset-btn' v-on:click="reset()" title='Reset all pixel values as defined in Restart Options. Hotkey: D'>Restart</button>
             </div>
         </div>
         <div id="hotbar" v-show="!panel_open&&!hide_settings">

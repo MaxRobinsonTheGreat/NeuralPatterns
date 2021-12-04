@@ -10,7 +10,7 @@
         <br>
         <button type='button' id='empty' v-on:click="reset('empty')" title='Set all pixels to 0. Hotkey: S'>Clear</button>
         <br>
-        Reset on randomize: <input id='reset-on-random' type='checkbox' v-model="reset_on_random">
+        Restart on randomize: <input id='reset-on-random' type='checkbox' v-model="reset_on_random">
     </div>
 </template>
 
