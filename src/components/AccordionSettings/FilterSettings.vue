@@ -22,14 +22,14 @@
             <input v-model.number="min" class="range" type="number" id="range">
             <input v-model.number="max" class="range" type="number">
             <br>
-            <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry()" :title="ver_tooltip">
+            <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry(0)" :title="ver_tooltip">
             <label for="ver_sym" :title="ver_tooltip">Vertical Symmetry</label>
             <br>
-            <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry()" :title="hor_tooltip">
+            <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry(1)" :title="hor_tooltip">
             <label for="hor_sym" :title="hor_tooltip">Horizontal Symmetry</label>
             <br>
-            <input v-model="diag_sym" id="diag_sym" type="checkbox" @change="setSymmetry()" :title="hor_tooltip">
-            <label for="diag_sym" :title="hor_tooltip">Diagonal Symmetry</label>
+            <input v-model="full_sym" id="full_sym" type="checkbox" @change="setSymmetry(2)" :title="fullsym_tooltip">
+            <label for="full_sym" :title="fullsym_tooltip">Full Symmetry</label>
         </div>
         <WikiSection><ConvolutionWiki/></WikiSection>
         
@@ -44,6 +44,9 @@ import Controller from '../../js/controller'
 import WikiSection from '../Wiki/WikiSection';
 import ConvolutionWiki from '../Wiki/ConvolutionWiki.vue';
 
+// const VERTICAL=0, HORIZONTAL=1; //commented to avoid lint issues
+const FULL=2;
+
 export default {
     name: 'FilterSettings',
     components: {
@@ -57,11 +60,12 @@ export default {
             max: 1,
             ver_sym: false,
             hor_sym: false,
-            diag_sym: false,
+            full_sym: false,
             wiki_open: false,
             range_tooltip: 'Min/max that filter values can be set to when randomizing',
             ver_tooltip: 'Right column filter values mirror left column ones, resulting in a vertically symmetrical update rule',
             hor_tooltip: 'Bottom row filter values mirror top row ones, resulting in a horizontally symmetrical update rule',
+            fullsym_tooltip: 'Enforces horizontal, vertical, and diagonal symmetry',
         }
     },
 
@@ -103,9 +107,21 @@ export default {
             this.setSymmetry();
         },
 
-        setSymmetry() {
+        setSymmetry(changed) {
             let f = Controller.filter;
             let disabled = []; // indexes of disabled values
+
+            if (this.full_sym && changed !== FULL) {
+                // if vertical sym or horizontal sym are tuned off, then full symmetry is turned off
+                this.full_sym = false;
+            }
+            else if (this.full_sym && changed === FULL) {
+                // if full symmetry is turned on, then hor/vert should be turned on too
+                f = Utils.fullSymmetry(f);
+                this.hor_sym = true;
+                this.ver_sym = true;
+                disabled.push(...[3]);
+            }
             if (this.hor_sym){
                 f = Utils.hSymmetry(f);
                 disabled.push(...[6, 7, 8]);
@@ -113,10 +129,6 @@ export default {
             if (this.ver_sym) {
                 f = Utils.vSymmetry(f);
                 disabled.push(...[2, 5, 8]);
-            }
-            if (this.diag_sym) {
-                f = Utils.dSymmetry(f);
-                disabled.push(...[3, 5, 7]);
             }
             for (let input of this.$refs.filterInputs) {
                 input.disabled = false; // re enable all inputs
@@ -132,12 +144,14 @@ export default {
         },
 
         enforceSymmetry(f) {
-            if (this.hor_sym)
-                f = Utils.hSymmetry(f);
-            if (this.ver_sym)
-                f = Utils.vSymmetry(f);
-            if (this.diag_sym)
-                f = Utils.dSymmetry(f);
+            if (this.full_sym)
+                f = Utils.fullSymmetry(f); // if full symmetry it will do hor/ver symmetry too
+            else {
+                if (this.hor_sym)
+                    f = Utils.hSymmetry(f);
+                if (this.ver_sym)
+                    f = Utils.vSymmetry(f);
+            }
             return f;
         },
 
