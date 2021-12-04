@@ -179,7 +179,6 @@ class Renderer {
 			this.gl.uniform4f(this.colorMaskAttr, this.colorMask.r, this.colorMask.g, this.colorMask.b, 1.0);
 			this.updateDisplay();
 		}
-		
 	}
 
 	setKernel(kernel) {
