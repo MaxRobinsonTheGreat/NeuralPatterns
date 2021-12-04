@@ -140,16 +140,34 @@ export default {
             this.$refs.stateSettings.reset();
         },
         loadConfig(config, reset) {
+            //restart options
             this.$refs.stateSettings.persistent = config.persistent;
             this.$refs.stateSettings.active_button = config.active_button;
+
+            //filter
             this.$refs.filterSettings.clearSymmetry();
             this.$refs.filterSettings.setFilter(config.filter);
+            this.$refs.filterSettings.hor_sym = config.hor_sym;
+            this.$refs.filterSettings.ver_sym = config.ver_sym;
+            this.$refs.filterSettings.full_sym = config.full_sym;
+            this.$refs.filterSettings.setSymmetry(2);
+
+            //activation
             this.$refs.activationSettings.code = config.activation;
+
+            // display settings
             if (config.color === "random")
                 this.$refs.displaySettings.randomize();
             else
                 this.$refs.displaySettings.setColor(config.color);
+
+            let bg_color = config.bg_color ? config.bg_color : '#000000';
+            this.$refs.displaySettings.bgColor = bg_color;
+
             this.$refs.displaySettings.persistent = config.persistent;
+            this.$refs.displaySettings.skip_frames = config.skip_frames;
+            this.$refs.displaySettings.setSkipFrames();
+
             Controller.load(config, reset);
         },
         setOpen(open) {

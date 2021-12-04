@@ -139,6 +139,9 @@ export default {
             
             Controller.kernel = f;
             Controller.apply();
+            Controller.hor_sym = this.hor_sym;
+            Controller.ver_sym=this.ver_sym;
+            Controller.full_sym=this.full_sym;
 
             this.setFilter(Controller.filter);
         },

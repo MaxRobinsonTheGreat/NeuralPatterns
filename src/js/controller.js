@@ -10,6 +10,11 @@ const Controller = {
         this.paused = false;
         this.reset_type = 'random';
         this.activationSource = Shaders.defaultActivationSource;
+
+        this.bgColor='#000000'
+        this.hor_sym=false;
+        this.ver_sym=false;
+        this.full_sym=false;
     },
 
     initRenderer(canvas) {

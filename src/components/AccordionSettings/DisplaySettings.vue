@@ -97,6 +97,7 @@ export default {
         },
         bgColor() {
             document.body.style["background-color"] = this.bgColor;
+            Controller.bgColor = this.bgColor;
         }
     }
 }
