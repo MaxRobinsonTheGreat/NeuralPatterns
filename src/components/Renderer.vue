@@ -71,17 +71,25 @@ export default {
 			this.x = e.offsetX;
 			this.y = e.offsetY;
 			let sign = -Math.sign(e.deltaY);
-			this.scale = Math.max(1, this.scale+(sign*1));
+			let new_scale = Math.max(1, this.scale+(sign*1));
+			// let calculated = canvas.currentStyle || window.getComputedStyle(p);
+			// console.log(calculated.marginTop)
+			// console.log(canvas.style)//.style('marginTop'))
 
-			if (this.scale > 1) {
+			if (new_scale > 1) {
 				this.setPixelated(true);
 				if (sign == 1) {
 					// If we're zooming in, zoom towards the mouse is (keep mouse in same location after zoom)
 					let half_w = Math.floor(this.canvas.width/2);
 					let half_h = Math.floor(this.canvas.height/2);
-					let prev_scale = this.scale-1;
-					this.left += ((half_w-this.left/prev_scale) - this.x)*prev_scale;
-					this.top += ((half_h-this.top/prev_scale) - this.y)*prev_scale;
+					// let prev_scale = this.scale-1;
+					// this.left += ((half_w-this.left/prev_scale)*prev_scale - this.x);
+					// this.top += ((half_h-this.top/prev_scale)*prev_scale - this.y);
+
+					this.left += (half_w  - this.x) * (new_scale - this.scale);
+					this.top += (half_h - this.y) * (new_scale - this.scale);
+
+
 					// camera view should not leave canvas
 					// below clamp will force this, but it is not necessary with the above code
 					// this.left = this.clamp(this.left, -half_w*prev_scale, half_w*prev_scale);
@@ -89,14 +97,16 @@ export default {
 				}
 				else {
 					// If we're zooming out, zoom back out towards the center
-					this.left -= (this.left/this.scale);
-					this.top -= (this.top/this.scale);
+					this.left -= (this.left/new_scale);
+					this.top -= (this.top/new_scale);
 				}
+				this.scale = new_scale;
 			}
 			else {
 				this.setPixelated(false);
 				this.left = 0;
 				this.top = 0;
+				this.scale = 1;
 			}
 			canvas.style.transform = `scale(${this.scale})`;
 			canvas.style.setProperty('left', `${this.left}px`);
@@ -132,9 +142,12 @@ export default {
 	position: absolute;
 	border: none;
 	padding: 0px;
-	margin: 0px;
-	left: 0px;
-	top: 0px;
-	z-index: 0;
+	/* margin: 0px; */
+	/* margin: auto;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	z-index: 0; */
 }
 </style>
