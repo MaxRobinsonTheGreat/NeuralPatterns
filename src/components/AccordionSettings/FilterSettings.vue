@@ -6,6 +6,7 @@
                     <input 
                         class="filter-val"
                         :value="val"
+                        step="0.001"
                         ref="filterInputs"
                         @change="updateFilter($event, row, i)"  
                         @focus="$event.target.select()"
@@ -18,14 +19,17 @@
 
         <div id="options">
             <label for="range" :title="range_tooltip">Random Range: </label>
-            <input v-model.number="min" type="number" id="range">
-            <input v-model.number="max" type="number">
+            <input v-model.number="min" class="range" type="number" id="range">
+            <input v-model.number="max" class="range" type="number">
             <br>
-            <label for="ver_sym" :title="ver_tooltip">Vertical Symmetry: </label>
-            <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry()" :title="ver_tooltip">
+            <input v-model="ver_sym" id="ver_sym" type="checkbox" @change="setSymmetry(0)" :title="ver_tooltip">
+            <label for="ver_sym" :title="ver_tooltip">Vertical Symmetry</label>
             <br>
-            <label for="hor_sym" :title="hor_tooltip">Horizontal Symmetry: </label>
-            <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry()" :title="hor_tooltip">
+            <input v-model="hor_sym" id="hor_sym" type="checkbox" @change="setSymmetry(1)" :title="hor_tooltip">
+            <label for="hor_sym" :title="hor_tooltip">Horizontal Symmetry</label>
+            <br>
+            <input v-model="full_sym" id="full_sym" type="checkbox" @change="setSymmetry(2)" :title="fullsym_tooltip">
+            <label for="full_sym" :title="fullsym_tooltip">Full Symmetry</label>
         </div>
         <WikiSection><ConvolutionWiki/></WikiSection>
         
@@ -40,6 +44,9 @@ import Controller from '../../js/controller'
 import WikiSection from '../Wiki/WikiSection';
 import ConvolutionWiki from '../Wiki/ConvolutionWiki.vue';
 
+// const VERTICAL=0, HORIZONTAL=1; //commented to avoid lint issues
+const FULL=2;
+
 export default {
     name: 'FilterSettings',
     components: {
@@ -53,10 +60,12 @@ export default {
             max: 1,
             ver_sym: false,
             hor_sym: false,
+            full_sym: false,
             wiki_open: false,
             range_tooltip: 'Min/max that filter values can be set to when randomizing',
             ver_tooltip: 'Right column filter values mirror left column ones, resulting in a vertically symmetrical update rule',
             hor_tooltip: 'Bottom row filter values mirror top row ones, resulting in a horizontally symmetrical update rule',
+            fullsym_tooltip: 'Enforces horizontal, vertical, and diagonal symmetry',
         }
     },
 
@@ -79,13 +88,14 @@ export default {
             val = val ? val : 0;
             let index = parseInt(row.id)*3 + i;
             Controller.filter[index] = parseFloat(val);
-            this.enforceSymmetry();
+            Controller.filter = this.enforceSymmetry(Controller.filter);
             this.setFilter(Controller.filter)
             Controller.apply();
         },
 
         randomize() {
             let filter = Utils.randomKernel(this.min, this.max, this.hor_sym, this.ver_sym);
+            filter = this.enforceSymmetry(filter);
             this.setFilter(filter);
             Controller.filter = filter;
             Controller.apply();
@@ -97,9 +107,21 @@ export default {
             this.setSymmetry();
         },
 
-        setSymmetry() {
+        setSymmetry(changed) {
             let f = Controller.filter;
             let disabled = []; // indexes of disabled values
+
+            if (this.full_sym && changed !== FULL) {
+                // if vertical sym or horizontal sym are tuned off, then full symmetry is turned off
+                this.full_sym = false;
+            }
+            else if (this.full_sym && changed === FULL) {
+                // if full symmetry is turned on, then hor/vert should be turned on too
+                f = Utils.fullSymmetry(f);
+                this.hor_sym = true;
+                this.ver_sym = true;
+                disabled.push(...[3]);
+            }
             if (this.hor_sym){
                 f = Utils.hSymmetry(f);
                 disabled.push(...[6, 7, 8]);
@@ -117,24 +139,28 @@ export default {
             
             Controller.kernel = f;
             Controller.apply();
+            Controller.hor_sym = this.hor_sym;
+            Controller.ver_sym=this.ver_sym;
+            Controller.full_sym=this.full_sym;
 
             this.setFilter(Controller.filter);
         },
 
-        enforceSymmetry() {
-            let f = Controller.filter;
-            if (this.hor_sym){
-                f = Utils.hSymmetry(f);
+        enforceSymmetry(f) {
+            if (this.full_sym)
+                f = Utils.fullSymmetry(f); // if full symmetry it will do hor/ver symmetry too
+            else {
+                if (this.hor_sym)
+                    f = Utils.hSymmetry(f);
+                if (this.ver_sym)
+                    f = Utils.vSymmetry(f);
             }
-            if (this.ver_sym) {
-                f = Utils.vSymmetry(f);
-            }
-            Controller.kernel = f;
+            return f;
         },
 
         setFilter(f) {
             // c formats floats to 4 decimals without trailing zeros
-            const c = (i) => { return parseFloat(f[i].toFixed(4)) }
+            const c = (i) => { return parseFloat(f[i].toFixed(3)) }
 
             Vue.set(this.filter, 0, {id:0, vals:[c(0), c(1), c(2)]});
             Vue.set(this.filter, 1, {id:1, vals:[c(3), c(4), c(5)]});
@@ -153,7 +179,6 @@ table {
 }
 
 input {
-    width: 50px;
     color: white;
     text-align: center;
     background-color: var(--in-bg);
@@ -168,27 +193,32 @@ input:hover:enabled {
     border: 2px var(--in-border-hover) solid;
 }
 
+.filter-val {
+    width: 55px;
+}
+
 .filter-val:disabled {
     color: gray;
 }
 
-.filter-val::-webkit-outer-spin-button,
+/* .filter-val::-webkit-outer-spin-button,
 .filter-val::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
 /* Firefox */
-.filter-val[type=number] {
+/* .filter-val[type=number] {
   -moz-appearance: textfield;
-}
+} */
 
 #options {
     text-align: left;
     margin-left: 10px;
 }
 
-#range {
+.range {
+    width: 50px;
     margin-top: 5px;
     margin-bottom: 5px;
 }

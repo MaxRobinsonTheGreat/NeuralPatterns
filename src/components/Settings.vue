@@ -10,7 +10,7 @@
                 <AccordionItem title='About'>
                     <About/>
                 </AccordionItem>
-                <AccordionItem title='Reset Options'>
+                <AccordionItem title='Restart Options'>
                     <StateSettings ref='stateSettings'/>
                 </AccordionItem>
                 <AccordionItem title='Filter' :start_open=true>
@@ -32,7 +32,7 @@
                     <i class="fa fa-step-forward"></i>
                 </button>
                 <button id='randomize-btn' v-on:click="randomize()" title='Randomize filter and color. Hotkey: F'>Randomize</button>
-                <button id='reset-btn' v-on:click="reset()" title='Reset pixel values. Hotkey: D'>Reset State</button>
+                <button id='reset-btn' v-on:click="reset()" title='Reset all pixel values as defined in Restart Options. Hotkey: D'>Restart</button>
             </div>
         </div>
         <div id="hotbar" v-show="!panel_open&&!hide_settings">
@@ -140,16 +140,34 @@ export default {
             this.$refs.stateSettings.reset();
         },
         loadConfig(config, reset) {
+            //restart options
             this.$refs.stateSettings.persistent = config.persistent;
             this.$refs.stateSettings.active_button = config.active_button;
+
+            //filter
             this.$refs.filterSettings.clearSymmetry();
+            this.$refs.filterSettings.hor_sym = Boolean(config.hor_sym);
+            this.$refs.filterSettings.ver_sym = Boolean(config.ver_sym);
+            this.$refs.filterSettings.full_sym = Boolean(config.full_sym);
+            this.$refs.filterSettings.setSymmetry(2);
             this.$refs.filterSettings.setFilter(config.filter);
+
+            //activation
             this.$refs.activationSettings.code = config.activation;
+
+            // display settings
             if (config.color === "random")
                 this.$refs.displaySettings.randomize();
             else
                 this.$refs.displaySettings.setColor(config.color);
+
+            let bg_color = config.bg_color ? config.bg_color : '#000000';
+            this.$refs.displaySettings.bgColor = bg_color;
+
             this.$refs.displaySettings.persistent = config.persistent;
+            this.$refs.displaySettings.skip_frames = config.skip_frames;
+            this.$refs.displaySettings.setSkipFrames();
+
             Controller.load(config, reset);
         },
         setOpen(open) {

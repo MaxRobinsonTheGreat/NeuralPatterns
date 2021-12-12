@@ -70,18 +70,22 @@ const Utils = {
         return color;
     },
 
-    randomKernel(min=-1, max=1, h_symmetry=false, v_symmetry=false) {
+    randomKernel(min=-1, max=1, h_symmetry=false, v_symmetry=false, full_symmetry=false) {
         let range = max - min;
         let kernel = new Float32Array(9);
     
         for (let i in kernel){
             kernel[i] = Math.random()*range + min;
         }
-    
-        if (h_symmetry)
-			kernel = this.hSymmetry(kernel);
-        if (v_symmetry)
-            kernel = this.vSymmetry(kernel);
+
+		if (full_symmetry)
+			kernel = this.fullSymmetry(kernel);
+		else{
+			if (h_symmetry)
+				kernel = this.hSymmetry(kernel);
+			if (v_symmetry)
+				kernel = this.vSymmetry(kernel);
+		}
         return kernel;
     },
 
@@ -96,6 +100,13 @@ const Utils = {
 		k[2] = k[0];
 		k[5] = k[3];
 		k[8] = k[6];
+		return k;
+	},
+
+	fullSymmetry(k) {
+		k[3] = k[1];
+		k = this.hSymmetry(k);
+		k = this.vSymmetry(k);
 		return k;
 	}
 }

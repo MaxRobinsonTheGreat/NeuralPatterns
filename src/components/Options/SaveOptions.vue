@@ -25,10 +25,18 @@ export default {
             let config = {};
             
             config["reset_type"] = Controller.reset_type;
+            
             config["filter"] = Controller.filter;
+            config["hor_sym"] = Controller.hor_sym;
+            config["ver_sym"] = Controller.ver_sym;
+            config["full_sym"] = Controller.full_sym;
+
             config["activation"] = Controller.activationSource;
+            
             config["color"] = this.randomcolor ? "random": Controller.color;
+            config["bg_color"] = Controller.bgColor;
             config["persistent"] = Controller.renderer.persistent;
+            config["skip_frames"] = Controller.renderer.skip_frames;
 
             let data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config));
             let downloadEl = document.getElementById('download-el');

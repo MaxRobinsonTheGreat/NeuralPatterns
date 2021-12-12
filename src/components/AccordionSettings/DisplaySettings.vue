@@ -1,19 +1,20 @@
 <template>
     <div id="display-settings">
-        <label for='color'>Color: </label>
-        <input id='color' type='color' v-model="hexColor" @change="changeColor()">
-
-        <button type='button' v-on:click="randomize()">Randomize Color</button>
+        <input class='color' id='color' type='color' v-model="hexColor">
+        <label for='color'> Foreground Color</label>
         <br>
-        <label for='skip' :title="skip_tooltip">Skip Frames: </label>
+        <input class='color' id='bg-color' type='color' v-model="bgColor">
+        <label for='bg-color'> Background Color</label>
+        <br>
         <input id='skip' type='checkbox' v-model="skip_frames" :title="skip_tooltip" @change="setSkipFrames()">
-        <button type='button' v-if="skip_frames" v-on:click="changeSkippedFrame()">Skip {{even_odd_txt}} frames</button>
+        <label for='skip' :title="skip_tooltip">Skip Frames</label>
+        <button type='button' v-if="skip_frames" v-on:click="changeSkippedFrame()" :title="even_odd_tooltip">Skip {{even_odd_txt}} frames</button>
         <br>
-        <label for='persistent' :title="persistent_tooltip">Persistent pixels: </label>
         <input id='persistent' type='checkbox' v-model="persistent" :title="persistent_tooltip" @change="setPersistent()">
+        <label for='persistent' :title="persistent_tooltip">Persistent pixels</label>
         <br>
-        <label for='randomize-color' :title="randomize_tooltip">Always randomize color: </label>
         <input id='randomize-color' type='checkbox' v-model="always_randomize" :title="randomize_tooltip">
+        <label for='randomize-color' :title="randomize_tooltip">Always randomize color</label>
     </div>
 </template>
 
@@ -27,6 +28,7 @@ export default {
         return {
             rgbColor: [0, 0, 0],
             hexColor: '#000000',
+            bgColor: '#000000',
             skip_frames: false,
             persistent: false,
             always_randomize: true,
@@ -34,7 +36,7 @@ export default {
             even_odd_tooltip: `Switches which frame is skipped`,
             even_odd_txt: 'even',
             persistent_tooltip: 'If true, once pixel values are set to non-zero values they are permanently fixed',
-            randomize_tooltip: 'If true, the color is randomized when the "Randomize" button is pressed',
+            randomize_tooltip: 'If true, the foreground color is randomized when the "Randomize" button is pressed',
 
         }
     },
@@ -52,8 +54,7 @@ export default {
         },
 
         changeColor() {
-            Controller.color = this.hexToRgb(this.hexColor);
-            Controller.apply();
+            Controller.setColor(this.hexToRgb(this.hexColor));
         },
 
         setColor(col) {
@@ -89,6 +90,15 @@ export default {
             Controller.offsetSkippedFrame();
             this.even_odd_txt = this.even_odd_txt === 'odd' ? 'even' : 'odd';
         }
+    },
+    watch: {
+        hexColor() {
+            this.changeColor()
+        },
+        bgColor() {
+            document.body.style["background-color"] = this.bgColor;
+            Controller.bgColor = this.bgColor;
+        }
     }
 }
 </script>
@@ -100,7 +110,7 @@ export default {
     text-align: left;
 }
 
-#color {
+.color {
     background-color: rgb(61, 21, 112);
     border: 1px black solid;
 }
