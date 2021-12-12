@@ -71,7 +71,7 @@ export default {
 			this.x = e.offsetX;
 			this.y = e.offsetY;
 			let sign = -Math.sign(e.deltaY);
-			let new_scale = Math.max(1, this.scale+(sign*1));
+			let new_scale = Math.max(1, this.scale+(sign));
 			// let calculated = canvas.currentStyle || window.getComputedStyle(p);
 			// console.log(calculated.marginTop)
 			// console.log(canvas.style)//.style('marginTop'))

@@ -146,11 +146,11 @@ export default {
 
             //filter
             this.$refs.filterSettings.clearSymmetry();
-            this.$refs.filterSettings.setFilter(config.filter);
-            this.$refs.filterSettings.hor_sym = config.hor_sym;
-            this.$refs.filterSettings.ver_sym = config.ver_sym;
-            this.$refs.filterSettings.full_sym = config.full_sym;
+            this.$refs.filterSettings.hor_sym = Boolean(config.hor_sym);
+            this.$refs.filterSettings.ver_sym = Boolean(config.ver_sym);
+            this.$refs.filterSettings.full_sym = Boolean(config.full_sym);
             this.$refs.filterSettings.setSymmetry(2);
+            this.$refs.filterSettings.setFilter(config.filter);
 
             //activation
             this.$refs.activationSettings.code = config.activation;
