@@ -2,7 +2,6 @@
     <div id="display-settings">
         <input class='color' id='color' type='color' v-model="hexColor">
         <label for='color'> Foreground Color</label>
-        <!-- <button type='button' v-on:click="randomize()">Randomize Color</button> -->
         <br>
         <input class='color' id='bg-color' type='color' v-model="bgColor">
         <label for='bg-color'> Background Color</label>
@@ -37,7 +36,7 @@ export default {
             even_odd_tooltip: `Switches which frame is skipped`,
             even_odd_txt: 'even',
             persistent_tooltip: 'If true, once pixel values are set to non-zero values they are permanently fixed',
-            randomize_tooltip: 'If true, the color is randomized when the "Randomize" button is pressed',
+            randomize_tooltip: 'If true, the foreground color is randomized when the "Randomize" button is pressed',
 
         }
     },
@@ -98,6 +97,7 @@ export default {
         },
         bgColor() {
             document.body.style["background-color"] = this.bgColor;
+            Controller.bgColor = this.bgColor;
         }
     }
 }

@@ -1,5 +1,7 @@
 import Shaders from './shaders'
 
+const FPS = 60;
+
 class Renderer {
 	constructor(canvas) {
 		this.canvas = canvas;
@@ -12,6 +14,8 @@ class Renderer {
 		this.activationSource = '';
 		this.persistent = false;
 		this.skip_frames = false;
+
+		this.frame_time = 1000/FPS;
 	}
 
 	compileShaders(vertexSource, fragSource, activationSource=undefined) {
@@ -216,20 +220,27 @@ class Renderer {
 	stopRender(){
 		this.running = false;
 		if (this.updaterequest)
-			window.cancelAnimationFrame(this.updaterequest);
+			// window.cancelAnimationFrame(this.updaterequest);
+			clearTimeout(this.updaterequest)
 	}
 
 	render(){
+		let start = Date.now();
 		this.updateState()
 		if (this.skip_frames) {
 			this.updateState();
+			this.updateState();
+			this.updateState();
+
 		}
 
 		this.updateDisplay();
 
+		let compute_time = Date.now() - start;
+
 		if(this.running){
-			this.updaterequest = window.requestAnimationFrame(()=>{this.render();});
-			// setTimeout(()=>{this.render();}, 80); // set render speed
+			// this.updaterequest = window.requestAnimationFrame(()=>{this.render();});
+			this.updaterequest = setTimeout(()=>{this.render();}, this.frame_time - compute_time); // set render speed
 		}
 	}
 

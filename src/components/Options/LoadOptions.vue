@@ -9,7 +9,7 @@
             </option>
         </select>
         <div>
-            <input id="uploadFile" type="file" @change="uploadFile" v-if="uploadingCustom">
+            <input id="uploadFile" type="file" @change="uploadFile" v-show="uploadingCustom">
         </div>
         <button id="load-btn" @click="load" v-if="can_load">Load</button>
         <label for='reset_on_load' :title="reset_on_load">Reset on load: </label>
@@ -50,6 +50,9 @@ export default {
                 this.config = JSON.parse(JSON.stringify(config))
                 this.config.filter = this.toFloat32(this.config.filter);
                 this.can_load = true;
+            }
+            else {
+                document.getElementById('uploadFile').click();
             }
         },
         uploadFile(e) {

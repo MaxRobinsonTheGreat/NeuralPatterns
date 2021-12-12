@@ -16,12 +16,20 @@
         "path": "worms.json"
     },
     {
-        "name": "Fabric",
-        "path": "fabric.json"
+        "name": "Slime mold",
+        "path": "slime_mold.json"
     },
     {
         "name": "Waves",
         "path": "waves.json"
+    },
+    {
+        "name": "Mitosis",
+        "path": "mitosis.json"
+    },
+    {
+        "name": "Fabric",
+        "path": "fabric.json"
     },
     {
         "name": "Pathways",
